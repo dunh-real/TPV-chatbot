@@ -1,0 +1,15 @@
+services:
+  redis-stack:
+    image: redis/redis-stack:latest
+    container_name: redis-stack
+    ports:
+      - "6379:6379"   # Cổng kết nối Database cho code Python
+      - "8001:8001"   # Cổng truy cập Dashboard (Redis Insight)
+    # environment:
+    #   - REDIS_ARGS=--requirepass your_password_here  # Thêm mật khẩu nếu cần bảo mật
+    volumes:
+      - redis_data:/data
+    restart: always
+
+volumes:
+  redis_data:
