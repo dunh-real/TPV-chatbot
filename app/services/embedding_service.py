@@ -4,7 +4,7 @@ from sentence_transformers import SentenceTransformer
 from transformers import AutoModelForMaskedLM, AutoTokenizer
 
 # Model Name
-DENSE_MODEL_NAME = "BAAI/bge-m3"
+DENSE_MODEL_NAME = "AITeamVN/Vietnamese_Embedding"
 SPARSE_MODEL_NAME = "prithivida/Splade_PP_en_v1"
 
 # Save Model
@@ -14,13 +14,22 @@ os.makedirs(MODEL_CACHE_FOLDER, exist_ok=True)
 # Create embedding dense-vector
 class LocalDenseEmbedding:
     def __init__(self, model_name=DENSE_MODEL_NAME, cache_folder=MODEL_CACHE_FOLDER):
+        self.model_name = model_name
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         
         self.model = SentenceTransformer(
-            model_name, 
+            self.model_name, 
             device=self.device,
             cache_folder=cache_folder
         )
+
+    # Get model name
+    def get_model_name(self):
+        return self.model_name
+
+    # Get model
+    def get_model(self):
+        return self.model
 
     # Processing query input
     def get_dense_vector(self, query: str):
@@ -39,7 +48,7 @@ class LocalSparseEmbedding:
     def __init__(self, model_name=SPARSE_MODEL_NAME, cache_folder=MODEL_CACHE_FOLDER):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=cache_folder)
-        self.model = AutoModelForMaskedLM.from_pretrained(model_name, cache_dir=cache_folder)
+        self.model = AutoModelForMaskedLM.from_pretrained(model_name, cache_dir=cache_folder, use_safetensors=True)
         self.model.to(self.device) 
         self.model.eval() 
 
