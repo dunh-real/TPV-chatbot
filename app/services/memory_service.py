@@ -2,7 +2,7 @@ import redis
 import json
 import ollama
 
-NAME_LLM_MODEL = "sailor2:1b"
+NAME_LLM_MODEL = "qwen2.5:1.5b"
 
 class RedisChatMemory:
     def __init__(self, host='localhost', port=6379, db=0, password=None):
@@ -15,25 +15,25 @@ class RedisChatMemory:
         )
         self.ttl = 86400  # 24 hour
 
-    def _generate_key(self, tenant_id, employee_id, session_id):
-        return f"chat_history:{tenant_id}:{employee_id}:{session_id}"
+    def _generate_key(self, tenant_id, employee_id):
+        return f"chat_history:{tenant_id}:{employee_id}"
 
-    def add_message(self, tenant_id, employee_id, session_id, role, content):
-        key = self._generate_key(tenant_id, employee_id, session_id)
+    def add_message(self, tenant_id, employee_id, role, content):
+        key = self._generate_key(tenant_id, employee_id)
         message = json.dumps({"role": role, "content": content}, ensure_ascii=False)
         
         self.redis_client.rpush(key, message)
 
         self.redis_client.expire(key, self.ttl)
 
-    def get_history(self, tenant_id, employee_id, session_id, limit=5):
-        key = self._generate_key(tenant_id, employee_id, session_id)
+    def get_history(self, tenant_id, employee_id, limit=2):
+        key = self._generate_key(tenant_id, employee_id)
         raw_history = self.redis_client.lrange(key, -limit, -1)
         
         return [json.loads(msg) for msg in raw_history]
 
-    def clear_history(self, tenant_id, employee_id, session_id):
-        key = self._generate_key(tenant_id, employee_id, session_id)
+    def clear_history(self, tenant_id, employee_id):
+        key = self._generate_key(tenant_id, employee_id)
         self.redis_client.delete(key) 
 
     def contextualize_query(self, user_query, chat_history):
@@ -81,7 +81,7 @@ class RedisChatMemory:
         """
         
         response = ollama.chat(
-            model='qwen2.5:7b',
+            model=NAME_LLM_MODEL,
             messages=[{'role': 'user', 'content': context_prompt}],
             options={'temperature': 0} 
         )

@@ -162,7 +162,7 @@ class VectorStoreService:
         
         print("Quá trình upload hoàn tất.")
 
-    def search_hybrid(self, query: str, tenant_id: str, accessed_role: str, k: int = 10, top_k: Optional[int] = None):
+    def search_hybrid(self, query: str, tenant_id: str, accessed_role: int, k: int = 10, top_k: Optional[int] = None):
         if top_k is not None:
             k = top_k
         

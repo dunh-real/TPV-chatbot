@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
@@ -77,6 +78,8 @@ class ChatSession():
 
             memory_client.add_message(tenant_id, employee_id, "user", context_query)
 
+            # first_time = time.time()
+
             try:
                 print("   🔍 Đang tìm kiếm thông tin...")
                 
@@ -99,7 +102,9 @@ class ChatSession():
                 if hasattr(response_obj, 'content'):
                     final_answer = response_obj.content 
                 else:
-                    final_answer = str(response_obj)   
+                    final_answer = str(response_obj) 
+
+                # end_time = time.time() - first_time  
 
                 # Save message to Redis
                 memory_client.add_message(tenant_id, employee_id, "assistant", final_answer)
@@ -115,6 +120,8 @@ class ChatSession():
                 
                 # Print response
                 print(f"\n🤖 ChatBot: {final_answer}")
+                print(result)
+                # print(end_time)
                 print("=" * 50)
 
             except Exception as e:

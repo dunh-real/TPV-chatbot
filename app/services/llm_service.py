@@ -184,6 +184,7 @@ class PromptBuilder:
         self.normal_instructions = """
         HƯỚNG DẪN FORMAT ĐẦU RA:
         - Trả lời thẳng vào vấn đề. Đảm bảo độ chi tiết cao như yêu cầu.
+        - Câu trả lời bắt buộc phải viết Tiếng Việt, trừ khi đầu vào là một ngôn ngữ khác.
         - Bạn BẮT BUỘC phải trả về kết quả dưới định dạng JSON hợp lệ, không kèm theo bất kỳ lời dẫn hay giải thích nào khác. Cấu trúc JSON như sau:
             {
                 "question": "Câu hỏi gốc hoặc nội dung người dùng vừa nhập",
