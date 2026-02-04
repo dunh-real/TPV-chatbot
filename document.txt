@@ -1,0 +1,159 @@
+TÀI LIỆU MÔ TẢ CHỨC NĂNG:
+
+I. CLIENT SERVICE
+1. OCR service
+- Chức năng: Convert file đầu vào của người dùng (Chatbot V1 - Yêu cầu định dạng file là PDF) sang dạng markdown. 
+- OCR Model: lightonai/LightOnOCR-2-1B
+- Input: 
+    Path file PDF - Nội dung bao gồm chữ đánh máy, ảnh scan, chữ viết tay, bảng biểu.
+- Output:
+    Path file Markdown và nội dung được convert.
+- Đầu ra mong đợi: 
+    Không làm mất mát nội dung gốc. Giữ được cấu trúc tiêu đề, bảng biểu. Đọc được chữ viết tay chính xác và không bỏ đi các chi tiết nhỏ.
+
+2. Chunking service
+- Chức năng: 
+    Nội dung file markdown được chia thành các chunk.
+    Kết hợp chunking: Markdown + Structure + Semantic + Fallback.
+    Config token size (min_token, max_token, ideal_token, hard_cap). Đảm bảo giữa các chunk có số token không quá chênh lệch.
+    Cô lập nội dung bảng biểu để tránh không bị chia nhỏ thành các chunk.
+- Embedding model: AITeamVN/Vietnamese_Embedding
+    So sánh ngữ nghĩa, độ tương đồng giữa các chunk.
+    Nếu giữa hai sentence có độ tương đồng trên ngưỡng quy định, sẽ được gộp lại thành một chunk.
+- Input:
+    Nội dung file markdown được convert từ ocr_service.
+- Output:
+    Danh sách các chunks được chia từ nội dung file markdown.
+- Đầu ra mong đợi:
+    Các chunk đảm bảo thể hiện trọn vẹn một nội dung. 
+    Số token giữa các chunk không quá chênh lệch.
+    Nội dung bảng biểu được thể hiện trọn vẹn.
+
+3. Embedding service
+- Chức năng: 
+    Nội dung các chunk được chuyển thành các vector embedding.
+    Kết hợp Dense Vector (Thể hiện toàn bộ nội dung) và Sparse Vector (Thể hiện các nội dung vắn tắt nhữ chữ viết tắt, ...)
+- Embedding model:
+    AITeamVN/Vietnamese_Embedding (Dimension: 1024)
+    prithivida/Splade_PP_en_v1
+- Input:
+    Danh sách các chunk được chia từ chunking_service.
+- Output: 
+    Danh sách các vector được convert từ nội dung.
+
+4. Qdrant service
+- Chức năng:
+    Tạo collection, tạo các point. Cấu trúc point bao gồm các trường nội dung sau:
+        ID: Point ID
+        Vector:
+            Dense-vector
+            Sparse-vector
+        Payload:
+            tenant_id: Mỗi doanh nghiệp là một tenant_id
+            src_file: Đường dẫn file tài liệu.
+            accessed_role: Vai trò của người dùng được phép truy cập vào nội dung file được chỉ định.
+            content: Nội dung chunk
+- Input:
+    Danh sách các vector (Dense và Sparse vector) được tạo từ Embedding service.
+- Output:
+    Collection, points được lưu trữ trên Qdrant DB.
+
+5. LLM service
+- Chức năng:
+    Với một truy vấn bất kỳ từ người dùng, embedding service sẽ tạo ra dense vector và Sparse vector từ truy vấn đầu vào.
+    Qdrant service sẽ thực hiện tìm kiếm các ngữ cảnh trong vector DB, có độ tương đồng về mặt ngữ nghĩa với câu truy vấn.
+    Các ngữ cảnh được tìm kiếm sẽ được LLM service rerank và chọn ra top ngữ cảnh tối ưu.
+    Tạo các bộ quy tắc cho system prompt để kiểm soát output thu được là tối ưu.
+    LLM service sẽ dựa vào truy vấn đầu vào, kết hợp với ngữ cảnh sau rerank để đưa ra phản hồi tối ưu nhất.
+- LLM model: 
+    qwen2.5:7b: Suy luận và đưa ra phản hồi cho người dùng.
+    AITeamVN/Vietnamese_Reranker: Sắp xếp các kết quả truy vấn (20 kết quả) và chọn ra top kết quả tối ưu nhất (5 kết quả).
+- Input:
+    Truy vấn đầu vào từ người dùng.
+- Output:
+    Kết quả phản hồi từ LLM service.
+- Đầu ra mong muốn:
+    Câu trả lời phải trả lời đúng trọng tâm câu hỏi. 
+    Chỉ được phép trích xuất các thông tin có trong nguồn tri thức được cung cấp.
+    Không suy diễn, không ảo tưởng ra câu trả lời.
+    Văn phong lịch sự, chuyên nghiệp. 
+
+6. Memory service
+- Chức năng:
+    Lưu lại lịch sử cuộc trò chuyện.
+    Viết lại câu hỏi một cách rõ ràng hơn dựa trên lịch sử trò chuyện được cung cấp.
+    Lập lịch tự động xóa khi đạt đến số lượng message nhất định.
+- Database:
+    Redis: Lưu lịch sử chat
+- Model: 
+    sailor2:1b: Viết lại truy vấn
+- Input:
+    Messages (query or answer)
+- Output:
+    History chat (JSON)
+
+II. LUỒNG CHỨC NĂNG
+1. Chức năng trò chuyện
+Hệ thống trò chuyện:
+- Input: Truy vấn được nhập từ người dùng
+- Output: Hệ thống chatbot đưa ra câu trả lời dựa trên truy vấn từ nguồn tri thức hệ thống
+
+Luồng hoạt động:
+    1. Người dùng nhập vào truy vấn (Query Input). API trả về các tham số sau: tenant_id, access_role, employee_id
+    2. Thêm ngữ cảnh cho truy vấn dựa trên lịch sử hội thoại:
+    Query Input + Conversation History -> LLM rewrite -> Context Query
+    3. Embedding truy vấn:
+    Context Query -> Embedding Model -> Dense Vector + Sparse Vector
+    4. Truy vấn DB, tìm kiếm ngữ cảnh tương đồng:
+    Retrieval to Qdrant DB -> Context Docs (20 context)
+    5. Xếp hạng ngữ cảnh và lấy ra top ngữ cảnh tối ưu:
+    Context Docs (20 content) -> LLM reranking -> Context Docs (5 content)
+    6. Tăng cường context và đưa vào LLM để sinh ra phản hồi cuối cùng:
+    Context Query + Context Docs (5 content) -> LLM -> Final Response 
+    
+    Format đầu ra JSON:
+        {       
+        "tenant_id": tenant_id,
+        "employee_id": employee_id,
+        "query": query,
+        "answer": final_answer,
+        "citation": citation
+        }
+
+2. Chức năng upload file
+Hệ thống upload tài liệu:
+- Input: File tài liệu đầu vào (PDF)
+- Output: Data Point được lưu trữ trên Qdrant
+
+Luồng hoạt động:
+    1. Người dùng upload tài liệu. API trả về các tham số: tenant_id, accessed_role_list, src_file
+    2. OCR tài liệu:
+    Input File (PDF) -> OCR Model -> Output File (MD)
+    3. Chia docs thành các chunk. Kết hợp Struct + Semantic Chunking:
+    Output File (MD) -> Text -> Chunking -> List Chunks
+    4. Chuyển các chunks từ dạng văn bản sang embedding:
+    List Chunks -> Embedding Model -> Dense Vector (1024 Dimension) + Sparse Vector (Any Dimention)
+    4. Insert vào Qdrant DB
+
+III. Cài đặt môi trường và khởi chạy chương trình
+LƯU Ý: Chạy hết đống model cũng ngốn đâu đó trên chục RAM đấy nhé. Cân nhắc trước khi chạy kẻo hỏng máy công ty :))
+1. Cài môi trường và download một vài thứ cần thiết
+- Để cài môi trường. Mở cái terminal lên. Chạy lần lượt từng lệnh sau:
+    python -m venv venv (Cài python 3.12.10 nhé)
+    ./venv/Scripts/Activate
+    pip install -r requirements.txt
+- Down model LLM để chạy local. Lên gg download ollama về trước nhé xong chạy từng lệnh sau:
+    ollama --version
+    ollama pull sailor2 
+    ollama pull qwen2.5:7b
+    ollama list
+- Download Docker Desktop
+2. Chạy chương trình
+- Chạy file docker-compose.yml:
+    docker-compose up -d
+- Chế độ upload:
+    python ./app/core/upload.py
+- Chế độ trò chuyện:   
+    python ./app/core/chat.py
+
+Lưu ý: Tạm thời chưa có API nền cần setup src_file, tenant_id, employee_id, accessed_role cách thủ công nhé. Hic hic :(
