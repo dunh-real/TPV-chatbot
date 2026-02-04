@@ -7,8 +7,8 @@ from transformers import LightOnOcrForConditionalGeneration, LightOnOcrProcessor
 
 NAME_OCR_MODEL = "lightonai/LightOnOCR-2-1B"
 
-PATH_INPUT_FILE = "./data/raw_dir"
-PATH_OUTPUT_FILE = "./data/md_dir"
+PATH_INPUT_FILE = "../../data/raw_dir"
+PATH_OUTPUT_FILE = "../../data/md_dir"
 
 class OCR_document:
     def __init__(self, model_name=NAME_OCR_MODEL):

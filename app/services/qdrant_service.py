@@ -63,8 +63,8 @@ class VectorStoreService:
             # Create Payload Indexes for tenant_id, filename, role_user fields 
             try:
                 self.client.create_payload_index(self.collection_name, "tenant_id", models.PayloadSchemaType.KEYWORD)
-                self.client.create_payload_index(self.collection_name, "filename", models.PayloadSchemaType.KEYWORD)
-                self.client.create_payload_index(self.collection_name, "role_user", models.PayloadSchemaType.KEYWORD)
+                self.client.create_payload_index(self.collection_name, "src_file", models.PayloadSchemaType.KEYWORD)
+                self.client.create_payload_index(self.collection_name, "accessed_role", models.PayloadSchemaType.INTEGER)
             except Exception:
                 pass
     
@@ -77,14 +77,14 @@ class VectorStoreService:
         )
 
     # Generate deterministic ID
-    def generate_deterministic_id(self, tenant_id: str, filename: str, chunk_idx: int) -> str:
-        unique_str = f"{tenant_id}_{filename}_{chunk_idx}"
+    def generate_deterministic_id(self, tenant_id: str, src_file: str, chunk_idx: int) -> str:
+        unique_str = f"{tenant_id}_{src_file}_{chunk_idx}"
         hash_obj = hashlib.md5(unique_str.encode('utf-8'))
         return str(uuid.UUID(hash_obj.hexdigest()))
 
     # Delete document by tenant_id and filename
-    def delete_document(self, tenant_id: str, filename: str):
-        """Xóa toàn bộ chunks của một file cụ thể dựa trên tenant_id và filename."""
+    def delete_document(self, tenant_id: str, src_file: str):
+        """Xóa toàn bộ chunks của một file cụ thể dựa trên tenant_id và src_file."""
 
         self.client.delete(
             collection_name=self.collection_name,
@@ -92,7 +92,7 @@ class VectorStoreService:
                 filter=models.Filter(
                     must=[
                         models.FieldCondition(key="tenant_id", match=models.MatchValue(value=tenant_id)),
-                        models.FieldCondition(key="filename", match=models.MatchValue(value=filename)),
+                        models.FieldCondition(key="src_file", match=models.MatchValue(value=src_file)),
                     ]
                 )
             )
@@ -107,12 +107,10 @@ class VectorStoreService:
             return
 
         total_chunks = len(chunks)
-        total_batches = math.ceil(total_chunks / batch_size)
         
         # BATCHING
         for i in range(0, total_chunks, batch_size):
             batch_chunks = chunks[i : i + batch_size]
-            current_batch_idx = (i // batch_size) + 1
             
             try:
                 # 1. Lấy text
@@ -126,13 +124,11 @@ class VectorStoreService:
                 
                 points = []
                 for j, chunk in enumerate(batch_chunks):
-                    # Lấy filename hoặc src_file
-                    filename_val = chunk.get("filename") or chunk.get("src_file") or "unknown"
 
                     payload = {
                         "tenant_id": chunk.get("tenant_id"),      
-                        "filename": filename_val,
-                        "role_user": chunk.get("role_user"),              
+                        "src_file": chunk.get("src_file"),
+                        "accessed_role": chunk.get("accessed_role"),              
                         "content": chunk.get("content"),          
                         "metadata": chunk.get("metadata", {})
                     }
@@ -141,7 +137,7 @@ class VectorStoreService:
                     global_idx = i + j
                     point_id = self.generate_deterministic_id(
                         payload["tenant_id"], 
-                        payload["filename"], 
+                        payload["src_file"], 
                         global_idx
                     )
 
@@ -166,7 +162,7 @@ class VectorStoreService:
         
         print("Quá trình upload hoàn tất.")
 
-    def search_hybrid(self, query: str, tenant_id: str, role_user: str, k: int = 10, top_k: Optional[int] = None):
+    def search_hybrid(self, query: str, tenant_id: str, accessed_role: str, k: int = 10, top_k: Optional[int] = None):
         if top_k is not None:
             k = top_k
         
@@ -185,8 +181,8 @@ class VectorStoreService:
                     match=models.MatchValue(value=tenant_id)
                 ),
                 models.FieldCondition(
-                    key="role_user", 
-                    match=models.MatchValue(value=role_user)
+                    key="accessed_role", 
+                    match=models.MatchValue(value=accessed_role)
                 )
             ]
         )
@@ -215,25 +211,3 @@ class VectorStoreService:
         )
 
         return results.points
-    
-    # def delete_old_data(self, days_to_keep: int = 30):
-    #     """Xóa dữ liệu cũ hơn số ngày quy định"""
-        
-    #     cutoff_time = int(time.time()) - (days_to_keep * 24 * 60 * 60)
-        
-    #     # Gọi lệnh xóa theo Filter
-    #     self.client.delete(
-    #         collection_name=self.collection_name,
-    #         points_selector=models.FilterSelector(
-    #             filter=models.Filter(
-    #                 must=[
-    #                     models.FieldCondition(
-    #                         key="created_at",
-    #                         range=models.Range(
-    #                             lt=cutoff_time  
-    #                         )
-    #                     )
-    #                 ]
-    #             )
-    #         )
-    #     )

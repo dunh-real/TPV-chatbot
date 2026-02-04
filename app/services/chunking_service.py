@@ -116,7 +116,7 @@ class ChunkingService:
         merged.append(current_doc)
         return merged
 
-    def _apply_semantic_split(self, chunks_list, content, headers, tenant_id, filename, role_user):
+    def _apply_semantic_split(self, chunks_list, content, headers, tenant_id, src_file, accessed_role):
         try:
             sub_docs = self.semantic_splitter.create_documents([content])
             
@@ -126,16 +126,16 @@ class ChunkingService:
                 if t_count > HARD_CAP:
                     hard_splits = self.fallback_splitter.split_text(sub.page_content)
                     for hard_txt in hard_splits:
-                        self._add_chunk(chunks_list, hard_txt, headers, tenant_id, filename, role_user, "hard_cap_fallback")
+                        self._add_chunk(chunks_list, hard_txt, headers, tenant_id, src_file, accessed_role, "hard_cap_fallback")
                 else:
-                    self._add_chunk(chunks_list, sub.page_content, headers, tenant_id, filename, role_user, "hybrid_semantic")
+                    self._add_chunk(chunks_list, sub.page_content, headers, tenant_id, src_file, accessed_role, "hybrid_semantic")
                     
         except Exception as e:
             hard_splits = self.fallback_splitter.split_text(content)
             for hard_txt in hard_splits:
-                self._add_chunk(chunks_list, hard_txt, headers, tenant_id, filename, role_user, "hard_cap_error_fallback")
+                self._add_chunk(chunks_list, hard_txt, headers, tenant_id, src_file, accessed_role, "hard_cap_error_fallback")
 
-    def process_hybrid_splitting(self, text: str, tenant_id: str, filename: str, role_user: List[str]) -> List[Dict]:
+    def process_hybrid_splitting(self, text: str, tenant_id: str, src_file: str, accessed_role: List[int]) -> List[Dict]:
         """
         1. Pre-process Tables -> 2. MD Split -> 3. Structure Split -> 4. Smart Merge -> 5. Semantic/Hard Cap
         """
@@ -167,21 +167,20 @@ class ChunkingService:
 
             # Case A: Chunk > MAX_TOKENS -> Semantic Split
             if token_count > MAX_TOKENS:
-                self._apply_semantic_split(final_chunks, content, headers, tenant_id, filename, role_user)
+                self._apply_semantic_split(final_chunks, content, headers, tenant_id, src_file, accessed_role)
             
             # Case B: Chunk <= MAX_TOKENS -> Save
             else:
                 method = "markdown_adaptive" if token_count > MIN_TOKENS else "merged_small"
-                self._add_chunk(final_chunks, content, headers, tenant_id, filename, role_user, method)
+                self._add_chunk(final_chunks, content, headers, tenant_id, src_file, accessed_role, method)
 
         return final_chunks
 
-    def _add_chunk(self, chunks_list, content, headers, tenant_id, filename, role_user, method):
+    def _add_chunk(self, chunks_list, content, headers, tenant_id, src_file, accessed_role, method):
         enriched_content = self._inject_header_context(content, headers)
         
         flat_metadata = {
             "token_count": self._count_tokens(content),
-            "method": method,
             "h1": headers.get("H1", ""),
             "h2": headers.get("H2", ""),
             "h3": headers.get("H3", "")
@@ -189,8 +188,8 @@ class ChunkingService:
 
         chunks_list.append({
             "tenant_id": tenant_id,
-            "src_file": filename,
-            "role_user": role_user,
+            "src_file": src_file,
+            "accessed_role": accessed_role,
             "chunk_id": str(uuid.uuid4()),
             "content": enriched_content,
             "metadata": flat_metadata

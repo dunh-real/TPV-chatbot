@@ -11,6 +11,7 @@ NAME_RERANKER_MODEL = "AITeamVN/Vietnamese_Reranker"
 MODEL_CACHE_FOLDER = os.path.join(os.path.dirname(__file__), "models_cache")
 os.makedirs(MODEL_CACHE_FOLDER, exist_ok=True)
 
+# API return: tenant_id
 tenant_id = "VGP" 
 
 # Reranking context result (Top 5) -> Prompt for system -> LLM -> Final answer (JSON)
