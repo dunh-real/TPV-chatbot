@@ -22,7 +22,7 @@ class QdrantService:
             collection_name = collection_name,
             wait = True,
             points = [
-                PointStruct(tenant_id = vector.tenant_id, vector = vector.vector, payload = vector.payload) for vector in vectors
+                PointStruct(tenant_id = vector['tenant_id'], vector = vector.vector, payload = vector.payload) for vector in vectors
             ]
         )
         return operation_info
