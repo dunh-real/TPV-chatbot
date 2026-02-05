@@ -76,7 +76,7 @@ class ChunkingService:
     def _smart_merge_sections(self, splits):
         """
         Logic Merge:
-        - Ưu tiên 1: Nếu < MIN_TOKENS -> BẮT BUỘC GỘP (trừ khi khác H1 hoặc vượt Hard Cap).
+        - Ưu tiên 1: Nếu < MIN_TOKENS -> BẮT BUỘC GỘP.
         - Ưu tiên 2: Nếu < IDEAL_TOKENS -> Gộp để tối ưu context.
         """
         if not splits: return []
