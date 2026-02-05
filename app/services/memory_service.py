@@ -5,7 +5,7 @@ import ollama
 NAME_LLM_MODEL = "qwen2.5:1.5b"
 
 class RedisChatMemory:
-    def __init__(self, host='localhost', port=6379, db=0, password=None):
+    def __init__(self, host='localhost', port=6379, db=0, password=None, max_message = 15):
         self.redis_client = redis.Redis(
             host=host, 
             port=port, 
@@ -13,7 +13,8 @@ class RedisChatMemory:
             password=password, 
             decode_responses=True
         )
-        self.ttl = 86400  # 24 hour
+        self.ttl = 25920  # 72 hour
+        self.max_message = max_message
 
     def _generate_key(self, tenant_id, employee_id):
         return f"chat_history:{tenant_id}:{employee_id}"
@@ -24,7 +25,10 @@ class RedisChatMemory:
         
         self.redis_client.rpush(key, message)
 
-        self.redis_client.expire(key, self.ttl)
+        if self.redis_client.llen(key) > self.max_message:
+            self.redis_client.ltrim(key, -self.max_messages, -1)
+        else:
+            self.redis_client.expire(key, self.ttl)
 
     def get_history(self, tenant_id, employee_id, limit=2):
         key = self._generate_key(tenant_id, employee_id)
@@ -48,36 +52,34 @@ class RedisChatMemory:
 
         context_prompt = f"""
         ### VAI TRÒ
-        Bạn là một chuyên gia phân tích truy vấn. Nhiệm vụ của bạn là kiểm tra xem "CÂU HỎI MỚI" có cần thêm ngữ cảnh từ "LỊCH SỬ" để trở nên rõ nghĩa khi tìm kiếm tài liệu hay không.
+        Bạn là một công cụ tiền xử lý (Pre-processor) cho hệ thống tìm kiếm Vector. 
+        Nhiệm vụ: Chuyển câu hỏi từ người dùng (user_query) thành một câu truy vấn ĐỘC LẬP (Standalone Query) dựa trên lịch sử cuộc trò chuyện được cung cấp.
 
-        ### QUY TẮC CỐT LÕI (NGHIÊM NGẶT)
-        1. GIỮ NGUYÊN câu hỏi gốc nếu:
-        - Nó đã đủ rõ ràng (có đầy đủ chủ ngữ, vị ngữ, thực thể).
-        - Nó là một chủ đề mới hoàn toàn, không liên quan đến lịch sử.
-        2. VIẾT LẠI câu hỏi nếu:
-        - Có chứa đại từ thay thế (nó, họ, đó, quy trình này, ông ấy...).
-        - Câu hỏi bị cụt, thiếu chủ thể đã được nhắc tới ở phía trên.
-        3. PHONG CÁCH VIẾT:
-        - Phải là câu hỏi TRỰC TIẾP của người dùng (ví dụ: "Quy trình A là gì?" thay vì "Người dùng muốn biết quy trình A là gì").
-        - Tuyệt đối KHÔNG sử dụng các cụm từ dẫn chuyện như: "Bạn đang hỏi về...", "Câu hỏi được viết lại là...", "Nghĩa là...".
-        4. ĐẦU RA: Chỉ trả về duy nhất nội dung câu hỏi sau khi xử lý. Không giải thích.
+        ### QUY TẮC NGHIÊM NGẶT
+        1. KHÔNG TRẢ LỜI CÂU HỎI. Bạn không phải là trợ lý ảo ở bước này.
+        2. KHÔNG GIẢI THÍCH. Không thêm "Câu hỏi được viết lại là...", không thêm dấu ngoặc kép.
+        3. NẾU CÂU HỎI LÀ DẠNG LỜI CHÀO, CẢM ƠN, HAY TRÒ CHUYỆN XÃ GIAO: Giữ nguyên văn câu hỏi đầu vào từ người dùng.
+        4. NẾU CÂU HỎI ĐÃ ĐỦ Ý: Giữ nguyên văn câu hỏi đầu vào từ người dùng.
+        5. CHỈ VIẾT LẠI KHI: Có đại từ (nó, họ, đó, ông ấy...) hoặc thiếu chủ thể mà lịch sử đã nhắc tới.
 
-        ### VÍ DỤ MINH HỌA
-        - Lịch sử: "Công ty A có chính sách bảo hiểm gì?" -> Câu hỏi mới: "Nó áp dụng cho ai?" 
-        => Kết quả: Chính sách bảo hiểm của công ty A áp dụng cho đối tượng nào?
-        - Lịch sử: "Hướng dẫn cài đặt VPN." -> Câu hỏi mới: "Tại sao tôi không kết nối được?"
-        => Kết quả: Tại sao tôi không kết nối được VPN sau khi cài đặt?
-        - Lịch sử: "Quy định nghỉ phép." -> Câu hỏi mới: "Thời tiết hôm nay thế nào?"
-        => Kết quả: Thời tiết hôm nay thế nào? (Giữ nguyên vì chủ đề mới)
+        ### VÍ DỤ (FEW-SHOT)
+        - Lịch sử: [user: Quy trình xin nghỉ phép là gì?, assistant: Bạn cần điền form A.]
+        Câu hỏi mới: "Nó nộp ở đâu?"
+        Kết quả: Quy trình nộp form xin nghỉ phép ở đâu?
 
-        ### DỮ LIỆU ĐẦU VÀO
-        [LỊCH SỬ]
-        {history_str}
+        - Lịch sử: [user: Ai là giám đốc công ty?, assistant: Ông Nguyễn Văn A.]
+        Câu hỏi mới: "Ông ấy bao nhiêu tuổi?"
+        Kết quả: Giám đốc Nguyễn Văn A bao nhiêu tuổi?
 
-        [CÂU HỎI MỚI]
-        {user_query}
+        - Lịch sử: [user: Thủ tướng hiện tại là ai?, assistant: Bà La Thu Thu.]
+        Câu hỏi mới: "Cảm ơn bạn"
+        Kết quả: Cảm ơn bạn
 
-        KẾT QUẢ:
+        ### THỰC THI
+        [LỊCH SỬ]: {history_str}
+        [CÂU HỎI MỚI]: {user_query}
+
+        KẾT QUẢ ĐỘC LẬP:
         """
         
         response = ollama.chat(

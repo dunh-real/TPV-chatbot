@@ -1,6 +1,5 @@
 import sys
 import os
-import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
@@ -14,7 +13,7 @@ Hệ thống trò chuyện:
 - Output: Hệ thống chatbot đưa ra câu trả lời dựa trên truy vấn từ nguồn tri thức hệ thống
 
 Luồng hoạt động:
-    1. Người dùng nhập vào truy vấn (Query Input). API trả về các tham số sau: tenant_id, access_role, employee_id
+    1. Người dùng nhập vào truy vấn (Query Input). API trả về các tham số sau: query_input, tenant_id, access_role, employee_id
     2. Thêm ngữ cảnh cho truy vấn dựa trên lịch sử hội thoại:
     Query Input + Conversation History -> LLM rewrite -> Context Query
     3. Embedding truy vấn:
@@ -41,101 +40,69 @@ db_client = VectorStoreService()
 rerank_client = RerankerService()
 prompt_client = PromptBuilder()
 memory_client = RedisChatMemory()
+llm_client = OllamaChatLLM()
 
 class ChatSession():
     def __init__(self):
         pass
 
-    def chat_session(self, tenant_id, access_role, employee_id):
-        print("🚀 KHỞI ĐỘNG HỆ THỐNG RAG ENTERPRISE")
-        print("="*50)
-        print("🤖 CHẾ ĐỘ TRÒ CHUYỆN")
-        print("="*50)
+    def chat_session(self, query_input, tenant_id, access_role, employee_id):   
+        query = query_input.strip()
 
-        # Khởi tạo LLM
-        try:
-            llm_client = OllamaChatLLM()
-            print(f"✅ Đã kết nối model: {llm_client.model_name}")
-        except Exception as e:
-            print(f"❌ Lỗi khởi tạo LLM: {e}")
-            return
-        
-        # Loop chat
-        while True:
-            print("Nhập quit hoặc exit để kết thúc cuộc trò chuyện <3")
-            query = input("\n👤 Bạn: ").strip()
+        # 1. Query Input + Conversation History -> LLM rewrite -> Context Query
+        # Get coversation history
+        chat_history = memory_client.get_history(tenant_id, employee_id, limit=6)
+        # Rewrite query input
+        context_query = memory_client.contextualize_query(query, chat_history)
+        # Save message to Redis
+        memory_client.add_message(tenant_id, employee_id, "user", query)
 
-            if query.lower() == 'quit' or query.lower() == 'exit':
-                print("👋 Tạm biệt! Rất vui vì được hỗ trợ")
-                sys.exit(0)
-            
-            if not query: continue
-            # Get conversation history 
-            chat_history = memory_client.get_history(tenant_id, employee_id, limit=2)
+        # 2. Context Query -> Embedding Model -> Dense Vector + Sparse Vector -> Retrieval to Qdrant DB -> Context Docs (20)
+        search_results = db_client.search_hybrid(context_query, tenant_id, access_role, k=20)
 
-            # Rewrite query input
-            context_query = memory_client.contextualize_query(query, chat_history)
+        # 3. Context Docs (20) -> LLM reranking -> Context Docs (5)
+        top_docs = rerank_client.rerank(context_query, search_results, top_k=5)
 
-            memory_client.add_message(tenant_id, employee_id, "user", context_query)
+        # 4. Context Query + Context Docs (5) -> LLM -> Final Response 
+        messages = prompt_client.build_chat_messages(
+            query=context_query, 
+            search_results=top_docs,
+            chat_history=chat_history, 
+            reasoning=False
+        )
 
-            # first_time = time.time()
-
-            try:
-                print("   🔍 Đang tìm kiếm thông tin...")
+        response_obj, citation = llm_client.invoke(messages)
                 
-                # Search vector
-                search_results = db_client.search_hybrid(context_query, tenant_id, access_role, k=20)
-                # Reranking docs
-                top_docs = rerank_client.rerank(context_query, search_results, top_k=5)
-                # Build prompt 
-                messages = prompt_client.build_chat_messages(
-                    query=context_query, 
-                    search_results=top_docs, 
-                    reasoning=False
-                )
+        final_answer = ""
+        if hasattr(response_obj, 'content'):
+            final_answer = response_obj.content 
+        else:
+            final_answer = str(response_obj) 
 
-                print("   🧠 AI đang suy luận...")
-                
-                response_obj, citation = llm_client.invoke(messages)
-                
-                final_answer = ""
-                if hasattr(response_obj, 'content'):
-                    final_answer = response_obj.content 
-                else:
-                    final_answer = str(response_obj) 
+        # Save message to Redis
+        memory_client.add_message(tenant_id, employee_id, "assistant", final_answer)
 
-                # end_time = time.time() - first_time  
+        # Output for Backend Team
+        result = {
+            "tenant_id": tenant_id,
+            "employee_id": employee_id,
+            "query": query,
+            "answer": final_answer,
+            "citation": citation
+        }
 
-                # Save message to Redis
-                memory_client.add_message(tenant_id, employee_id, "assistant", final_answer)
-
-                # Output for Backend Team
-                result = {
-                    "tenant_id": tenant_id,
-                    "employee_id": employee_id,
-                    "query": query,
-                    "answer": final_answer,
-                    "citation": citation
-                }
-                
-                # Print response
-                print(f"\n🤖 ChatBot: {final_answer}")
-                print(result)
-                # print(end_time)
-                print("=" * 50)
-
-            except Exception as e:
-                print(f"❌ Chi tiết lỗi: {e}")
+        return result
 
 def main():
     chat_client = ChatSession()
 
-    # API return: tenant_id, access_role, employee_id
-    tenant_id = "VGP"
-    access_role = 1
-    employee_id = "B123"
+    # API return: query_input, tenant_id, access_role, employee_id
+    query_input = None
+    tenant_id = None
+    access_role = None
+    employee_id = None
 
-    chat_client.chat_session(tenant_id, access_role, employee_id)
+    chat_client.chat_session(query_input, tenant_id, access_role, employee_id)
 
 if __name__ == "__main__":
     main()

@@ -37,29 +37,22 @@ class ProcessFileInput():
         pass
 
     def process_file_upload(self, src_file, tenant_id, accessed_role_list):
-        print("🚀 KHỞI ĐỘNG HỆ THỐNG RAG ENTERPRISE")
-        print("="*50)
-        print("📂 CHẾ ĐỘ UPLOAD TÀI LIỆU")
-        print("="*50)
-
         # 1. Input data (PDF) -> OCR Model -> Output data (MD)
-        print("Đang đọc tài liệu...")
         ocr_client.processing_data(src_file)
         md_output = Path(PATH_OUTPUT_FILE) / src_file.stem() + ".md"
         with open(md_output, "r", encoding="utf-8") as f:
             markdown_doc = f.read()
 
-        # 2. Output data (MD) -> Chunking Text
-        print("Đang chunking dữ liệu...")
+        # 2. Output data (MD) -> Chunking -> List chunks
         chunks = chunking_client.process_hybrid_splitting(markdown_doc, tenant_id, src_file, accessed_role_list)
 
-        # 3. Chunking Text -> Embedding and Insert data to Qdrant
-        print("Đang thêm dữ liệu vào Qdrant DB...")
+        # 3. List chunks -> Embedding -> Dense Vector + Sparse Vector -> Insert to Qdrant DB
         db_client.add_chunks(chunks)
 
         db_client.optimize_indexing()
 
-        print("Thêm thành công dữ liệu vào Qdrant DB")
+        # Return markdown text for backend team
+        return markdown_doc
 
 def main():
     process_client = ProcessFileInput()

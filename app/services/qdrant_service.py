@@ -2,7 +2,6 @@ from typing import List, Dict, Optional
 from qdrant_client import QdrantClient, models
 from app.services.embedding_service import LocalDenseEmbedding, LocalSparseEmbedding
 import uuid 
-import math
 import hashlib 
 
 # Setup DB

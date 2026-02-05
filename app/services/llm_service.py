@@ -9,10 +9,7 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 NAME_LLM_MODEL = "qwen2.5:7b"
 NAME_RERANKER_MODEL = "AITeamVN/Vietnamese_Reranker"
 MODEL_CACHE_FOLDER = os.path.join(os.path.dirname(__file__), "models_cache")
-os.makedirs(MODEL_CACHE_FOLDER, exist_ok=True)
-
-# API return: tenant_id
-tenant_id = "VGP" 
+os.makedirs(MODEL_CACHE_FOLDER, exist_ok=True) 
 
 # Reranking context result (Top 5) -> Prompt for system -> LLM -> Final answer (JSON)
 
@@ -139,24 +136,35 @@ class PromptBuilder:
             - Nếu thông tin nằm rải rác ở nhiều chunk (đoạn văn), hãy TỔNG HỢP lại thành một câu trả lời mạch lạc, tránh lặp lại ý.
             - Nếu các tài liệu có thông tin mâu thuẫn nhau: Hãy nêu rõ sự mâu thuẫn đó (Ví dụ: "Tài liệu A nói X, nhưng tài liệu B nói Y").
 
-        3. **TRÍCH DẪN NGUỒN CHÍNH XÁC**:
+        3. **TƯƠNG TÁC NGƯỜI DÙNG & XỬ LÝ LỊCH SỬ**:
+            - Luôn kiểm tra [LỊCH SỬ TRÒ CHUYỆN] để hiểu các câu hỏi tiếp nối. 
+            - Giải mã các đại từ thay thế (ví dụ: "nó", "quy trình này", "ông ấy") dựa trên các thực thể đã nhắc tới trong lịch sử.
+            - Nếu người dùng chỉ trò chuyện bình thường (ví dụ: "chào bạn", "cảm ơn", "ok"), hãy trả lời tự nhiên, thân thiện và KHÔNG trích dẫn nguồn tài liệu.
+            - Tuyệt đối tuân thủ bảo mật và an toàn thông tin ngay cả khi trò chuyện phiếm.
+
+        4. **QUẢN LÝ LUỒNG HỘI THOẠI (TRÍ NHỚ)**:
+            - **Tránh lặp lại vô nghĩa**: Nếu câu hỏi mới của người dùng đã được trả lời chính xác ở ngay câu phía trên trong [LỊCH SỬ], hãy tóm tắt ngắn gọn và hỏi xem họ có cần chi tiết thêm ở khía cạnh nào khác không.
+            - **Tính nhất quán**: Đảm bảo câu trả lời hiện tại không mâu thuẫn với các câu trả lời bạn đã đưa ra trong lịch sử (trừ khi thông tin trong <context> mới nhất có sự cập nhật).
+            - **Xử lý câu hỏi bổ sung**: Nếu người dùng hỏi "Tại sao?", "Còn gì nữa không?", hãy kết hợp cả [LỊCH SỬ] để biết họ đang hỏi "Tại sao" cho vấn đề gì và dùng <context> để tìm lời giải.
+
+        5. **PHÂN TÁCH NGUỒN TRI THỨC**:
+            - Sử dụng [LỊCH SỬ] để hiểu Ý ĐỊNH (Intent) và NGỮ CẢNH (Context) của người hỏi.
+            - Sử dụng <context> làm CĂN CỨ DUY NHẤT để đưa ra sự thật (Facts).
+
+        6. **TRÍCH DẪN NGUỒN CHÍNH XÁC**:
             - Cuối mỗi luận điểm quan trọng, BẮT BUỘC ghi nguồn.
             - Định dạng: [Nguồn: Tên file - Tiêu đề mục (nếu có)].
             - **LƯU Ý ĐẶC BIỆT**: `<src_file>` phải lấy CHÍNH XÁC từng ký tự trong ngữ cảnh: "src_file":"document_18_output.md" => trả về nguồn là "document_18_output.md".
             - KHÔNG ĐƯỢC bịa ra tên nguồn, số Điều/Khoản nếu trong đoạn văn không ghi rõ.
 
-        4. **XỬ LÝ THIẾU TIN**: 
+        7. **XỬ LÝ THIẾU TIN**: 
             - Nếu không tìm thấy thông tin trong <context>, hãy trả lời: "Dựa trên các tài liệu được cung cấp, không có thông tin về vấn đề này." (Không được tự ý trả lời xã giao hay xin lỗi vòng vo).
 
-        5. **TRÌNH BÀY**: 
+        8. **TRÌNH BÀY**: 
             - Câu trả lời là đoạn văn bản mạch lạc, rõ ràng, tuần tự, có đầu cuối.
             - Nếu đầu ra cần xuất dạng bảng biểu hãy dùng Markdown: Headings (#, ##, ###), Bold (**text**), Bullet points (-), Numbered list (1. 2. 3.), Italic (*text*), Blockquote (>).
             - Sử dụng Markdown chuyên nghiệp, ví dụ dùng bảng (Table) nếu so sánh dữ liệu. Dùng Bold (**text**) cho các từ khóa quan trọng.
             - TUYỆT ĐỐI KHÔNG xuất markdown mọi lúc, chỉ dùng khi cần.
-
-        6. **TƯƠNG TÁC NGƯỜI DÙNG**:
-            - Nếu người dùng chỉ trò chuyện bình thường, ví dụ: "chào bạn" hay "1+1= mấy?" vân vân,... Không hỏi nội dung chuyên môn về tài liệu thì trả lời dựa trên ngữ cảnh câu hỏi một cách tự nhiên nhất tuy nhiên vẫn phải tuân thủ đủ các quy tắc về bảo mật và an toàn thông tin đã nêu ở trên.
-            - KHÔNG CẦN TRÍCH NGUỒN TÀI LIỆU ĐỂ HIỂN THỊ KHI TRÒ CHUYỆN THÔNG THƯỜNG.
         """
 
         # Phần Reasoning (Thêm bước kiểm tra lại)
@@ -184,7 +192,7 @@ class PromptBuilder:
         self.normal_instructions = """
         HƯỚNG DẪN FORMAT ĐẦU RA:
         - Trả lời thẳng vào vấn đề. Đảm bảo độ chi tiết cao như yêu cầu.
-        - Câu trả lời bắt buộc phải viết Tiếng Việt, trừ khi đầu vào là một ngôn ngữ khác.
+        - Câu trả lời BẮT BUỘC phải viết Tiếng Việt, trừ khi đầu vào là một ngôn ngữ khác.
         - Bạn BẮT BUỘC phải trả về kết quả dưới định dạng JSON hợp lệ, không kèm theo bất kỳ lời dẫn hay giải thích nào khác. Cấu trúc JSON như sau:
             {
                 "question": "Câu hỏi gốc hoặc nội dung người dùng vừa nhập",
@@ -218,12 +226,24 @@ class PromptBuilder:
             formatted_chunks.append(chunk_text)
 
         return "\n\n".join(formatted_chunks)
+    
+    def _fomat_history(self, chat_history: List[Any]) -> str:
+        if not chat_history:
+            return "Không có lịch sử trò chuyện"
+        
+        history_str = ""
+        for msg in chat_history:
+            role = "user" if msg['role'] == 'user' else "assistant"
+            history_str += f"{role}: {msg['content']}\n"
 
+        return history_str
+    
     # Respone format
-    def build_chat_messages(self, query: str, search_results: List[Any], reasoning: bool = False) -> List[Any]:
+    def build_chat_messages(self, query: str, search_results: List[Any], chat_history: List[Any], reasoning: bool = False) -> List[Any]:
         
         # 1. Chuẩn bị Context
         context_str = self._format_context(search_results)
+        history_str = self._fomat_history(chat_history)
 
         # 2. Chọn hướng dẫn output dựa trên mode reasoning
         output_instruction = self.reasoning_instructions if reasoning else self.normal_instructions
@@ -232,6 +252,9 @@ class PromptBuilder:
         full_system_content = (
             f"{self.intro_template}\n"
             f"{self.rules_template}\n"
+            f"\n=== LỊCH SỬ TRÒ CHUYỆN ===\n"
+            f"{history_str}\n"
+            f"=== KẾT THÚC LỊCH SỬ ===\n"
             f"\n=== BẮT ĐẦU NGỮ CẢNH (CONTEXT) ===\n"
             f"{context_str}\n"
             f"=== KẾT THÚC NGỮ CẢNH ===\n\n"
@@ -241,7 +264,7 @@ class PromptBuilder:
         # 4. Tạo Messages
         messages = [
             SystemMessage(content=full_system_content),
-            HumanMessage(content=f"[Context: {tenant_id}] {query}")
+            HumanMessage(content=query)
         ]
 
         return messages
