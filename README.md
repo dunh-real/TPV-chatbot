@@ -237,11 +237,11 @@ docker-compose up -d
 
 - [x] Setup cấu trúc project
 - [x] Config và schemas
-- [ ] OCR Service
-- [ ] Chunking Service  
-- [ ] Vector Service
-- [ ] LLM Service
-- [ ] RAG Service (orchestrator)
+- [x] OCR Service
+- [x] Chunking Service  
+- [x] Vector Service
+- [x] LLM Service
+- [x] RAG Service (orchestrator)
 - [ ] API Endpoints
 - [ ] Testing
 - [ ] Docker deployment
