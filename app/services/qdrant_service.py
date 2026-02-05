@@ -1,8 +1,7 @@
 from typing import List, Dict, Optional
 from qdrant_client import QdrantClient, models
 from app.services.embedding_service import LocalDenseEmbedding, LocalSparseEmbedding
-import uuid 
-import hashlib 
+from app.services.generate_id import GenerateID
 
 # Setup DB
 QDRANT_URL = "http://localhost:6333" 
@@ -14,6 +13,7 @@ DENSE_DIMENSION = 1024
 # Embedding Model
 dense_embedder = LocalDenseEmbedding()
 sparse_embedder = LocalSparseEmbedding()
+gen_id = GenerateID()
 
 class VectorStoreService:
     def __init__(self, shard_number: int = 2):
@@ -75,12 +75,6 @@ class VectorStoreService:
             hnsw_config=models.HnswConfigDiff(m=16, ef_construct=100)
         )
 
-    # Generate deterministic ID
-    def generate_deterministic_id(self, tenant_id: str, src_file: str, chunk_idx: int) -> str:
-        unique_str = f"{tenant_id}_{src_file}_{chunk_idx}"
-        hash_obj = hashlib.md5(unique_str.encode('utf-8'))
-        return str(uuid.UUID(hash_obj.hexdigest()))
-
     # Delete document by tenant_id and filename
     def delete_document(self, tenant_id: str, src_file: str):
         """Xóa toàn bộ chunks của một file cụ thể dựa trên tenant_id và src_file."""
@@ -132,13 +126,8 @@ class VectorStoreService:
                         "metadata": chunk.get("metadata", {})
                     }
 
-                    # Tạo ID cố định
-                    global_idx = i + j
-                    point_id = self.generate_deterministic_id(
-                        payload["tenant_id"], 
-                        payload["src_file"], 
-                        global_idx
-                    )
+                    # Tạo ID 
+                    point_id = gen_id.generate_id()
 
                     # Tạo Point
                     points.append(models.PointStruct(
