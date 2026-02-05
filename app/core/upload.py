@@ -1,6 +1,7 @@
 import sys
 import os
 from pathlib import Path
+import time 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
@@ -37,6 +38,8 @@ class ProcessFileInput():
         pass
 
     def process_file_upload(self, src_file, tenant_id, accessed_role_list):
+        first_time = time.time()
+
         # 1. Input data (PDF) -> OCR Model -> Output data (MD)
         ocr_client.processing_data(src_file)
         md_output = Path(PATH_OUTPUT_FILE) / src_file.stem() + ".md"
@@ -51,8 +54,10 @@ class ProcessFileInput():
 
         db_client.optimize_indexing()
 
-        # Return markdown text for backend team
-        return markdown_doc
+        end_time = time.time() - first_time
+
+        # Return markdown text for backend team and time processing 
+        return markdown_doc, end_time
 
 def main():
     process_client = ProcessFileInput()

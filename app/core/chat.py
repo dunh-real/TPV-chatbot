@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
@@ -46,7 +47,9 @@ class ChatSession():
     def __init__(self):
         pass
 
-    def chat_session(self, query_input, tenant_id, access_role, employee_id):   
+    def chat_session(self, query_input, tenant_id, access_role, employee_id): 
+        first_time = time.time()
+
         query = query_input.strip()
 
         # 1. Query Input + Conversation History -> LLM rewrite -> Context Query
@@ -91,7 +94,9 @@ class ChatSession():
             "citation": citation
         }
 
-        return result
+        end_time = time.time() - first_time
+
+        return result, end_time
 
 def main():
     chat_client = ChatSession()
