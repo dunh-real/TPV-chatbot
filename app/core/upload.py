@@ -21,6 +21,7 @@ Luồng hoạt động:
     4. Insert vào Qdrant DB
 """
 
+
 PATH_INPUT_FILE = "./data/raw_dir"
 PATH_OUTPUT_FILE = "./data/md_dir"
 
@@ -41,7 +42,7 @@ def _get_db_client():
 def _get_ocr_client():
     global _ocr_client
     if _ocr_client is None:
-        from app.services.ocr_service import OCR_document
+        from app.services.ocr_service import OCRService as OCR_document
         _ocr_client = OCR_document()
     return _ocr_client
 
@@ -66,7 +67,7 @@ class ProcessFileInput():
         chunking_client = _get_chunking_client()
 
         # 1. Input data (PDF) -> OCR Model -> Output data (MD)
-        ocr_client.processing_data(src_file)
+        ocr_client.process_file(src_file)
         md_output = Path(PATH_OUTPUT_FILE) / (src_file.stem + ".md")
         with open(md_output, "r", encoding="utf-8") as f:
             markdown_doc = f.read()

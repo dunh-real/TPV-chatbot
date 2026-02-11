@@ -1,65 +1,110 @@
+import os
+import io
 import torch
-import base64
 from pathlib import Path
 import pypdfium2 as pdfium
-import io
-from transformers import LightOnOcrForConditionalGeneration, LightOnOcrProcessor
+from vllm import LLM, SamplingParams
 
-NAME_OCR_MODEL = "lightonai/LightOnOCR-2-1B"
+# Cấu hình mặc định
+MODEL_NAME = "lightonai/LightOnOCR-2-1B"
+INPUT_DIR = "./data/raw_dir"
+OUTPUT_DIR = "./data/md_dir"
 
-PATH_INPUT_FILE = "./data/raw_dir"
-PATH_OUTPUT_FILE = "./data/md_dir"
-
-class OCR_document:
-    def __init__(self, model_name=NAME_OCR_MODEL):
-        self.device = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"
-        self.dtype = torch.float32 if self.device == "mps" else torch.bfloat16
+class OCRService:
+    def __init__(self, model_name=MODEL_NAME):
+        """
+        Khởi tạo model vLLM với các cấu hình tối ưu hóa bộ nhớ.
+        Các tham số tương ứng với câu lệnh CLI:
+        --limit-mm-per-prompt '{"image": 1}'
+        --mm-processor-cache-gb 0
+        --no-enable-prefix-caching
+        --gpu-memory-utilization 0.25
+        """
+        print("--- Initializing vLLM Engine ---")
         
-        self.model = LightOnOcrForConditionalGeneration.from_pretrained(model_name, torch_dtype=self.dtype).to(self.device)
-        self.processor = LightOnOcrProcessor.from_pretrained(model_name)
+        # Thiết lập cấu hình khởi chạy Model
+        self.llm = LLM(
+            model=model_name,
+            trust_remote_code=True,             # Bắt buộc cho model LightOnOCR
+            dtype="bfloat16",                   # Khuyên dùng cho model này
+            limit_mm_per_prompt={"image": 1},   # Giới hạn 1 ảnh mỗi prompt
+            mm_processor_cache_gb=0,            # Tắt cache xử lý ảnh để tiết kiệm RAM
+            enable_prefix_caching=False,        # Tương đương --no-enable-prefix-caching
+            gpu_memory_utilization=0.25,        # Giới hạn VRAM sử dụng
+            enforce_eager=True                  # Thường cần thiết cho các kiến trúc Vision custom
+        )
 
-    def processing_data(self, path_input):
-        path_output = Path(PATH_OUTPUT_FILE) / (path_input.stem + ".md")
-        Path(PATH_OUTPUT_FILE).mkdir(parents=True, exist_ok=True)
+        # Thiết lập tham số sinh văn bản (Sampling Parameters)
+        self.sampling_params = SamplingParams(
+            temperature=0.2,
+            top_p=0.9,
+            max_tokens=4096  # Đủ lớn để chứa text của một trang A4 dày đặc
+        )
 
-        pdf = pdfium.PdfDocument(path_input)
-        num_pages = len(pdf)
+    def process_file(self, file_path):
+        """Xử lý một file PDF và lưu kết quả"""
+        file_path = Path(file_path)
+        output_path = Path(OUTPUT_DIR) / (file_path.stem + ".md")
+        
+        # Tạo thư mục output nếu chưa có
+        output_path.parent.mkdir(parents=True, exist_ok=True)
 
+        print(f"Processing: {file_path.name}")
+        
         try:
+            pdf = pdfium.PdfDocument(file_path)
+            num_pages = len(pdf)
+            
+            full_text = f"# OCR Results: {file_path.name}\n\n"
+            
+            # Chuẩn bị danh sách inputs cho vLLM (Batch processing nếu muốn tối ưu hơn)
+            # Ở đây xử lý từng trang để đảm bảo an toàn bộ nhớ
             for i in range(num_pages):
+                print(f"  - Page {i+1}/{num_pages}...", end=" ", flush=True)
+                
+                # 1. Render trang PDF sang ảnh PIL
                 page = pdf[i]
                 pil_image = page.render(scale=2.77).to_pil()
-                page.close()
+                
+                # 2. Tạo message format cho vLLM
+                # vLLM hỗ trợ truyền trực tiếp đối tượng PIL Image
+                messages = [
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "image", "image": pil_image},
+                            {"type": "text", "text": "Extract all text from this document and convert to markdown format."}
+                        ]
+                    }
+                ]
 
-                buffer = io.BytesIO()
-                pil_image.save(buffer, format="PNG")
-                image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-                pil_image.close()
-                buffer.close()
-
-                conversation = [{
-                    "role": "user",
-                    "content": [
-                        {"type": "image", "url": f"data:image/png;base64,{image_base64}"},
-                        {"type": "text", "text": "Extract all text from this document and convert to markdown format."}
-                    ]
-                }]
-
-                inputs = self.processor.apply_chat_template(
-                    conversation,
-                    add_generation_prompt=True,
-                    tokenize=True,
-                    return_dict=True,
-                    return_tensors="pt",
+                # 3. Gọi hàm chat (Offline inference)
+                # vLLM tự động áp dụng chat template của model
+                outputs = self.llm.chat(
+                    messages=messages, 
+                    sampling_params=self.sampling_params,
+                    use_tqdm=False # Tắt thanh loading bar của từng request
                 )
+                
+                # 4. Lấy kết quả
+                generated_text = outputs[0].outputs[0].text
+                print(f"Done ({len(generated_text)} chars)")
 
-                inputs = {k: v.to(device=self.device, dtype=self.dtype) if v.is_floating_point() else v.to(self.device) for k, v in inputs.items()}
+                # Append vào nội dung
+                full_text += f"## Page {i+1}\n\n{generated_text}\n\n---\n\n"
+                
+                # Giải phóng tài nguyên ảnh
+                pil_image.close()
+                page.close() # Quan trọng: đóng page pdfium để tránh leak memory
 
-                output_ids = self.model.generate(**inputs, max_new_tokens=1024)
-                generated_ids = output_ids[0, inputs["input_ids"].shape[1]:]
-                output_text = self.processor.decode(generated_ids, skip_special_tokens=True)
-
-                with open(path_output, "a", encoding="utf-8") as f:
-                    f.write(output_text)
+            # Ghi ra file sau khi xong toàn bộ PDF
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(full_text)
+            
+            print(f"Saved to: {output_path}")
+            
+        except Exception as e:
+            print(f"\n[ERROR] Failed to process {file_path.name}: {e}")
         finally:
-            pdf.close()
+            if 'pdf' in locals():
+                pdf.close()
