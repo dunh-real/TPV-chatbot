@@ -6,7 +6,7 @@ from langchain_core.messages import BaseMessage, AIMessage, SystemMessage, Human
 from typing import List, Any
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-NAME_LLM_MODEL = "qwen2.5:7b"
+NAME_LLM_MODEL = "qwen2.5:latest"
 NAME_RERANKER_MODEL = "AITeamVN/Vietnamese_Reranker"
 MODEL_CACHE_FOLDER = os.path.join(os.path.dirname(__file__), "models_cache")
 os.makedirs(MODEL_CACHE_FOLDER, exist_ok=True) 
@@ -51,7 +51,7 @@ class OllamaChatLLM:
             return AIMessage(content=final_answer), citation
             
         except Exception as e:
-            return AIMessage(content=f"Lỗi kết nối Ollama: {str(e)}")
+            return AIMessage(content=f"Lỗi kết nối Ollama: {str(e)}"), ""
         
 # Reranker service
 class RerankerService:

@@ -7,10 +7,8 @@ Hệ thống chatbot sử dụng RAG (Retrieval-Augmented Generation) để tr�
 - **OCR**: LightOnOCR-1B để trích xuất text từ PDF
 - **Chunking**: Small-to-Big Retrieval (2 tầng: Parent chunks theo Markdown Header, Child chunks theo Semantic)
 - **Vector DB**: Qdrant để lưu trữ và tìm kiếm embeddings
-- **Embedding**:  DENSE_MODEL_NAME = "AITeamVN/Vietnamese_Embedding"
-                  SPARSE_MODEL_NAME = "prithivida/Splade_PP_en_v1"
-- **Rerank**: "AITeamVN/Vietnamese_Reranker"
-- **LLM**: Ollama (qwen2.5:7b hoặc tùy chọn)
+- **Embedding**: all-MiniLM-L6-v2
+- **LLM**: Ollama (llama3.1 hoặc tùy chọn)
 - **Cache**: Redis để lưu conversation history
 
 ## 🏗️ Kiến Trúc Hệ Thống
@@ -106,7 +104,7 @@ OCR_MODEL_PATH=./models/LightOnOCR-1B
 
 # LLM (Ollama)
 LLM_BASE_URL=http://localhost:11434
-LLM_MODEL_NAME=qwen2.5:7b
+LLM_MODEL_NAME=llama3.1
 ```
 
 ### 3. Khởi động Services
@@ -120,7 +118,7 @@ docker run -p 6379:6379 redis:7-alpine
 
 # Khởi động Ollama (nếu chưa có)
 # Tải về từ: https://ollama.ai
-ollama pull qwen2.5:7b
+ollama pull llama3.1
 ```
 
 ### 4. Download Models

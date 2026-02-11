@@ -92,11 +92,10 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     """Request cho endpoint /ask"""
-    question: str = Field(..., description="Câu hỏi của user", min_length=1)
-    user_id: str = Field(..., description="ID của user để lấy conversation history")
-    conversation_id: Optional[str] = Field(None, description="ID của cuộc hội thoại (nếu tiếp tục)")
-    include_sources: bool = Field(default=True, description="Có trả về sources không")
-    max_sources: int = Field(default=5, description="Số lượng sources tối đa", ge=1, le=10)
+    question: str = Field(..., description="Câu hỏi / tin nhắn của user", min_length=1)
+    tenant_id: str = Field(..., description="ID của tenant (công ty/tổ chức)")
+    role_id: int = Field(..., description="Role ID để phân quyền truy cập tài liệu")
+    user_id: str = Field(..., description="ID của user (employee_id)")
     
     @validator("question")
     def validate_question(cls, v):

@@ -72,7 +72,7 @@ class Settings(BaseSettings):
     api_version: str = Field(default="v1", description="API version")
     api_host: str = Field(default="0.0.0.0", description="API host")
     api_port: int = Field(default=8000, description="API port")
-    api_reload: bool = Field(default=True, description="Auto reload khi dev")
+    api_reload: bool = Field(default=False, description="Auto reload khi dev")
     
     # ==================== LOGGING ====================
     log_level: str = Field(default="INFO", description="Log level")
@@ -111,10 +111,9 @@ class Settings(BaseSettings):
         for directory in directories:
             Path(directory).mkdir(parents=True, exist_ok=True)
     
-    class Config:
-        """Pydantic config"""
-        case_sensitive = False
-        
+    # class Config:
+        # """Pydantic config"""
+        # case_sensitive = False
 
 # Singleton instance
 settings = Settings()
