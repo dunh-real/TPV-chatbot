@@ -2,10 +2,10 @@ import redis
 import json
 import ollama
 
-NAME_LLM_MODEL = "qwen2.5:1.5b"
+NAME_LLM_MODEL = "qwen2.5:latest"
 
 class RedisChatMemory:
-    def __init__(self, host='localhost', port=6379, db=0, password=None, max_message = 15):
+    def __init__(self, host='192.168.100.45', port=6379, db=0, password=None, max_message = 40):
         self.redis_client = redis.Redis(
             host=host, 
             port=port, 
@@ -13,7 +13,7 @@ class RedisChatMemory:
             password=password, 
             decode_responses=True
         )
-        self.ttl = 25920  # 72 hour
+        # self.ttl = 25920  # 72 hour
         self.max_message = max_message
 
     def _generate_key(self, tenant_id, employee_id):
@@ -26,9 +26,7 @@ class RedisChatMemory:
         self.redis_client.rpush(key, message)
 
         if self.redis_client.llen(key) > self.max_message:
-            self.redis_client.ltrim(key, -self.max_messages, -1)
-        else:
-            self.redis_client.expire(key, self.ttl)
+            self.redis_client.ltrim(key, -self.max_message, -1)
 
     def get_history(self, tenant_id, employee_id, limit=2):
         key = self._generate_key(tenant_id, employee_id)

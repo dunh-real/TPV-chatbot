@@ -1,13 +1,9 @@
 import sys
 import os
 from pathlib import Path
-import time 
+import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-
-from app.services.chunking_service import ChunkingService
-from app.services.qdrant_service import VectorStoreService
-from app.services.ocr_service import OCR_document
 
 """
 Hệ thống upload tài liệu:
@@ -28,10 +24,35 @@ Luồng hoạt động:
 PATH_INPUT_FILE = "./data/raw_dir"
 PATH_OUTPUT_FILE = "./data/md_dir"
 
-# Load client service
-db_client = VectorStoreService()
-ocr_client = OCR_document()
-chunking_client = ChunkingService()
+# Lazy-loaded clients — tránh load model nặng khi import module
+_db_client = None
+_ocr_client = None
+_chunking_client = None
+
+
+def _get_db_client():
+    global _db_client
+    if _db_client is None:
+        from app.services.qdrant_service import VectorStoreService
+        _db_client = VectorStoreService()
+    return _db_client
+
+
+def _get_ocr_client():
+    global _ocr_client
+    if _ocr_client is None:
+        from app.services.ocr_service import OCR_document
+        _ocr_client = OCR_document()
+    return _ocr_client
+
+
+def _get_chunking_client():
+    global _chunking_client
+    if _chunking_client is None:
+        from app.services.chunking_service import ChunkingService
+        _chunking_client = ChunkingService()
+    return _chunking_client
+
 
 class ProcessFileInput():
     def __init__(self):
@@ -40,9 +61,13 @@ class ProcessFileInput():
     def process_file_upload(self, src_file, tenant_id, accessed_role_list):
         first_time = time.time()
 
+        db_client = _get_db_client()
+        ocr_client = _get_ocr_client()
+        chunking_client = _get_chunking_client()
+
         # 1. Input data (PDF) -> OCR Model -> Output data (MD)
         ocr_client.processing_data(src_file)
-        md_output = Path(PATH_OUTPUT_FILE) / src_file.stem() + ".md"
+        md_output = Path(PATH_OUTPUT_FILE) / (src_file.stem + ".md")
         with open(md_output, "r", encoding="utf-8") as f:
             markdown_doc = f.read()
 
@@ -56,18 +81,5 @@ class ProcessFileInput():
 
         end_time = time.time() - first_time
 
-        # Return markdown text for backend team and time processing 
+        # Return markdown text for backend team and time processing
         return markdown_doc, end_time
-
-def main():
-    process_client = ProcessFileInput()
-
-    # API return: src_file, tenant_id, access_role
-    src_file = None
-    tenant_id = None
-    accessed_role_list = None
-
-    process_client.process_file_upload(src_file, tenant_id, accessed_role_list)
-
-if __name__ == "__main__":
-    main()
