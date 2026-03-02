@@ -74,6 +74,17 @@ class Settings(BaseSettings):
     api_port: int = Field(default=8000, description="API port")
     api_reload: bool = Field(default=False, description="Auto reload khi dev")
     
+    # ==================== MSSQL CONFIGURATION (for MCP) ====================
+    mssql_server: str = Field(default="localhost", description="MSSQL server address")
+    mssql_database: str = Field(default="YourDatabase", description="Tên database")
+    mssql_user: str = Field(default="ai_readonly", description="DB user (read-only)")
+    mssql_password: str = Field(default="", description="DB password")
+    mssql_timeout: int = Field(default=10, description="Connection timeout (giây)")
+    mssql_max_rows: int = Field(default=100, description="Số rows tối đa trả về mỗi query")
+    
+    # ==================== MCP SERVER ====================
+    mcp_server_port: int = Field(default=8001, description="Port cho MCP Server")
+    
     # ==================== LOGGING ====================
     log_level: str = Field(default="INFO", description="Log level")
     log_file_path: str = Field(default="./logs/app.log", description="Đường dẫn file log")

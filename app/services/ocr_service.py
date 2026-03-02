@@ -26,11 +26,11 @@ class OCRService:
         self.llm = LLM(
             model=model_name,
             trust_remote_code=True,             # Bắt buộc cho model LightOnOCR
-            dtype="bfloat16",                   # Khuyên dùng cho model này
+            dtype="float16",                   # Khuyên dùng cho model này
             limit_mm_per_prompt={"image": 1},   # Giới hạn 1 ảnh mỗi prompt
             mm_processor_cache_gb=0,            # Tắt cache xử lý ảnh để tiết kiệm RAM
             enable_prefix_caching=False,        # Tương đương --no-enable-prefix-caching
-            gpu_memory_utilization=0.25,        # Giới hạn VRAM sử dụng
+            gpu_memory_utilization=0.3,        # Giới hạn VRAM sử dụng
             enforce_eager=True                  # Thường cần thiết cho các kiến trúc Vision custom
         )
 
