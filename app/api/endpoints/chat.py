@@ -15,7 +15,7 @@ router = APIRouter()
     response_model=ChatResponse,
     responses={400: {"model": ErrorResponse}, 500: {"model": ErrorResponse}},
 )
-async def ask_question(request: ChatRequest):
+def ask_question(request: ChatRequest):
     """
     Gửi câu hỏi và nhận câu trả lời từ hệ thống RAG.
 
