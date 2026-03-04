@@ -36,6 +36,7 @@ async def ask_question(request: ChatRequest):
             tenant_id=request.tenant_id,
             access_role=request.role_id,
             employee_id=request.user_id,
+            department_id=request.department_id,
         )
 
         return ChatResponse(

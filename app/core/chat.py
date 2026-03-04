@@ -47,7 +47,7 @@ class ChatSession():
     def __init__(self):
         pass
 
-    def chat_session(self, query_input, tenant_id, access_role, employee_id): 
+    def chat_session(self, query_input, tenant_id, access_role, employee_id, department_id=0): 
         first_time = time.time()
 
         query = query_input.strip()
@@ -89,6 +89,7 @@ class ChatSession():
         result = {
             "tenant_id": tenant_id,
             "employee_id": employee_id,
+            "department_id": department_id,
             "query": query,
             "answer": final_answer,
             "citation": citation

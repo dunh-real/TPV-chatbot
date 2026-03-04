@@ -96,6 +96,7 @@ class ChatRequest(BaseModel):
     tenant_id: str = Field(..., description="ID của tenant (công ty/tổ chức)")
     role_id: int = Field(..., description="Role ID để phân quyền truy cập tài liệu")
     user_id: str = Field(..., description="ID của user (employee_id)")
+    department_id: Optional[int] = Field(default=0, description="ID phòng ban của user")
     
     @validator("question")
     def validate_question(cls, v):
