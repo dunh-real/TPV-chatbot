@@ -5,13 +5,15 @@ import ollama
 NAME_LLM_MODEL = "qwen2.5:latest"
 
 class RedisChatMemory:
-    def __init__(self, host='192.168.100.45', port=6379, db=0, password=None, max_message = 40):
+    def __init__(self, host='localhost', port=6379, db=0, password=None, max_message = 40):
         self.redis_client = redis.Redis(
             host=host, 
             port=port, 
             db=db, 
             password=password, 
-            decode_responses=True
+            decode_responses=True,
+            socket_timeout=5,
+            socket_connect_timeout=5,
         )
         # self.ttl = 25920  # 72 hour
         self.max_message = max_message

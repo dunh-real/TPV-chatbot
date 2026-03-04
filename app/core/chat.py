@@ -57,11 +57,18 @@ class ChatSession():
 
         # 1. Query Input + Conversation History -> LLM rewrite -> Context Query
         logger.info("[CHAT] Step 1: Getting chat history from Redis...")
-        chat_history = memory_client.get_history(tenant_id, employee_id, limit=6)
+        try:
+            chat_history = memory_client.get_history(tenant_id, employee_id, limit=6)
+        except Exception as e:
+            logger.warning(f"[CHAT] Step 1: Redis error: {e}. Continuing without history.")
+            chat_history = []
         logger.info(f"[CHAT] Step 1: Got {len(chat_history)} history messages. Contextualizing query via Ollama...")
         context_query = memory_client.contextualize_query(query, chat_history)
         logger.info(f"[CHAT] Step 1: Done. context_query='{context_query[:100]}'")
-        memory_client.add_message(tenant_id, employee_id, "user", query)
+        try:
+            memory_client.add_message(tenant_id, employee_id, "user", query)
+        except Exception as e:
+            logger.warning(f"[CHAT] Step 1: Redis save error: {e}. Skipping.")
 
         # 2. Hybrid search
         logger.info("[CHAT] Step 2: Hybrid search in Qdrant...")
@@ -92,7 +99,10 @@ class ChatSession():
             final_answer = str(response_obj) 
 
         # Save message to Redis
-        memory_client.add_message(tenant_id, employee_id, "assistant", final_answer)
+        try:
+            memory_client.add_message(tenant_id, employee_id, "assistant", final_answer)
+        except Exception as e:
+            logger.warning(f"[CHAT] Redis save error: {e}. Skipping.")
 
         # Output for Backend Team
         result = {
