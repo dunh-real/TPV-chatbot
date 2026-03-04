@@ -3,9 +3,14 @@ Chat Endpoint - Stateless REST API
 Client gửi: question, tenant_id, role_id, user_id
 """
 
+import logging
+import traceback
+
 from fastapi import APIRouter, HTTPException
 
 from app.models.schemas import ChatRequest, ChatResponse, ErrorResponse
+
+logger = logging.getLogger("uvicorn.error")
 
 router = APIRouter()
 
@@ -18,19 +23,13 @@ router = APIRouter()
 def ask_question(request: ChatRequest):
     """
     Gửi câu hỏi và nhận câu trả lời từ hệ thống RAG.
-
-    Request body:
-        - question: tin nhắn / câu hỏi
-        - tenant_id: ID tenant (công ty/tổ chức)
-        - role_id: role để phân quyền truy cập tài liệu
-        - user_id: ID nhân viên (dùng cho conversation history)
-
-    Flow: Query → Contextualize → Hybrid Search → Rerank → LLM → Response
     """
+    logger.info(f"[ASK] Received: question='{request.question}', tenant={request.tenant_id}, role={request.role_id}, user={request.user_id}, dept={request.department_id}")
     try:
         from app.core.chat import ChatSession
 
         chat_session = ChatSession()
+        logger.info("[ASK] ChatSession created, calling chat_session()...")
         result, processing_time = chat_session.chat_session(
             query_input=request.question,
             tenant_id=request.tenant_id,
@@ -38,6 +37,8 @@ def ask_question(request: ChatRequest):
             employee_id=request.user_id,
             department_id=request.department_id,
         )
+
+        logger.info(f"[ASK] Done in {processing_time:.2f}s, answer length={len(result.get('answer', ''))}")
 
         return ChatResponse(
             question=request.question,
@@ -54,4 +55,6 @@ def ask_question(request: ChatRequest):
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Lỗi xử lý câu hỏi: {e}")
+        logger.error(f"[ASK] ERROR: {type(e).__name__}: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Lỗi xử lý câu hỏi: {type(e).__name__}: {e}")
