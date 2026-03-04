@@ -15,6 +15,12 @@ logger = logging.getLogger("uvicorn.error")
 router = APIRouter()
 
 
+def _get_chat_session():
+    """Lấy ChatSession đã được pre-load từ main.py"""
+    import main
+    return main._chat_session
+
+
 @router.post(
     "/ask",
     response_model=ChatResponse,
@@ -26,10 +32,8 @@ def ask_question(request: ChatRequest):
     """
     logger.info(f"[ASK] Received: question='{request.question}', tenant={request.tenant_id}, role={request.role_id}, user={request.user_id}, dept={request.department_id}")
     try:
-        from app.core.chat import ChatSession
-
-        chat_session = ChatSession()
-        logger.info("[ASK] ChatSession created, calling chat_session()...")
+        chat_session = _get_chat_session()
+        logger.info("[ASK] Calling chat_session()...")
         result, processing_time = chat_session.chat_session(
             query_input=request.question,
             tenant_id=request.tenant_id,
