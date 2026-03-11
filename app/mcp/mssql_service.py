@@ -12,12 +12,13 @@ import pyodbc
 from typing import Any
 from dotenv import load_dotenv
 
-load_dotenv()
+from pathlib import Path
+load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 logger = logging.getLogger(__name__)
 
 # ==================== Config ====================
-MSSQL_SERVER   = os.getenv("MSSQL_SERVER", "localhost")
+MSSQL_SERVER   = os.getenv("MSSQL_SERVER", "100.122.181.72")
 MSSQL_DATABASE = os.getenv("MSSQL_DATABASE", "erps")
 MSSQL_USER     = os.getenv("MSSQL_USER", "ai_readonly_user")
 MSSQL_PASSWORD = os.getenv("MSSQL_PASSWORD", "")
