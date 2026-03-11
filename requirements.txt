@@ -54,3 +54,5 @@ httpx
 websockets
 sentencepiece
 tiktoken
+pyodbc 
+python-dotenv

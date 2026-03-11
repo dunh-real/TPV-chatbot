@@ -28,7 +28,7 @@ class OCR_document:
         try:
             for i in range(num_pages):
                 page = pdf[i]
-                pil_image = page.render(scale=2.77).to_pil()
+                pil_image = page.render(scale=2.0).to_pil()
                 page.close()
 
                 buffer = io.BytesIO()
