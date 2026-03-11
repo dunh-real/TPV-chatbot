@@ -101,6 +101,10 @@ Trả về JSON hợp lệ, không giải thích thêm:
                 return {"success": False, "sql": "", "data": [], "row_count": 0,
                         "explanation": "", "error": "LLM không generate được SQL"}
 
+            # Fallback: nếu LLM quên SELECT
+            if not sql.upper().startswith("SELECT"):
+                sql = "SELECT " + sql
+
             logger.info(f"Generated SQL: {sql[:100]}...")
 
         except Exception as e:

@@ -7,6 +7,7 @@ MSSQL Service - Kết nối database với readonly user
 """
 
 import os
+import re
 import logging
 import pyodbc
 from typing import Any
@@ -25,11 +26,11 @@ MSSQL_PASSWORD = os.getenv("MSSQL_PASSWORD", "")
 MSSQL_TIMEOUT  = int(os.getenv("MSSQL_TIMEOUT", "10"))
 MAX_ROWS       = int(os.getenv("MSSQL_MAX_ROWS", "100"))
 
-# Các từ khóa bị chặn tuyệt đối
+# Các từ khóa bị chặn tuyệt đối (dùng word boundary để tránh false positive)
 BLOCKED_KEYWORDS = [
-    "INSERT", "UPDATE", "DELETE", "DROP", "TRUNCATE",
-    "ALTER", "CREATE", "EXEC", "EXECUTE", "GRANT", "REVOKE",
-    "MERGE", "BULK", "OPENROWSET", "OPENDATASOURCE"
+    r"\bINSERT\b", r"\bUPDATE\b", r"\bDELETE\b", r"\bDROP\b", r"\bTRUNCATE\b",
+    r"\bALTER\b", r"\bCREATE\b", r"\bEXEC\b", r"\bEXECUTE\b", r"\bGRANT\b",
+    r"\bREVOKE\b", r"\bMERGE\b", r"\bBULK\b", r"\bOPENROWSET\b", r"\bOPENDATASOURCE\b"
 ]
 
 
@@ -84,9 +85,10 @@ class MSSQLService:
         if not sql_upper.startswith("SELECT"):
             return False, "Chỉ cho phép câu lệnh SELECT"
 
-        # Chặn các từ khóa nguy hiểm
-        for keyword in BLOCKED_KEYWORDS:
-            if keyword in sql_upper:
+        # Chặn các từ khóa nguy hiểm (word boundary)
+        for pattern in BLOCKED_KEYWORDS:
+            if re.search(pattern, sql_upper):
+                keyword = pattern.replace(r"\b", "")
                 return False, f"Từ khóa không được phép: {keyword}"
 
         # Chặn comment (có thể dùng để bypass)
