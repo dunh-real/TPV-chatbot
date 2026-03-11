@@ -36,10 +36,10 @@ WHERE Status = 0 AND IsDeleted = 0
 
 -- Ví dụ 4: Lọc theo khoảng thời gian
 -- Q: Cuộc họp tuần này?
-SELECT Id, Title, StartTime, EndTime FROM Meeting_Meeting
-WHERE StartTime >= DATEADD(DAY, 1-DATEPART(WEEKDAY, GETDATE()), CAST(GETDATE() AS DATE))
-AND StartTime < DATEADD(DAY, 8-DATEPART(WEEKDAY, GETDATE()), CAST(GETDATE() AS DATE))
-AND IsDeleted = 0
+SELECT m.Id, m.Title, m.StartTime, m.EndTime FROM Meeting_Meeting m
+WHERE m.IsDeleted = 0
+AND m.StartTime >= DATEADD(DAY, 1-DATEPART(WEEKDAY, GETDATE()), CAST(GETDATE() AS DATE))
+AND m.StartTime < DATEADD(DAY, 8-DATEPART(WEEKDAY, GETDATE()), CAST(GETDATE() AS DATE))
 """
 
 
@@ -60,7 +60,8 @@ LƯU Ý QUAN TRỌNG:
 - Luôn thêm WHERE IsDeleted = 0 nếu table có cột IsDeleted (ABP soft delete)
 - Dùng GETDATE() thay vì NOW()
 - Dùng TOP thay vì LIMIT
-- Không dùng backtick (`), dùng ngoặc vuông ([]) nếu cần escape tên cột
+- KHÔNG dùng backtick (`) hay ngoặc vuông ([]) cho tên cột/table thông thường
+- Chỉ dùng alias ngắn gọn: FROM Dms_Employee e, không phải FROM [Dms_Employee] e
 - Chỉ viết câu SELECT, không INSERT/UPDATE/DELETE
 
 Câu hỏi: "{question}"
@@ -104,6 +105,10 @@ Trả về JSON hợp lệ, không giải thích thêm:
             # Fallback: nếu LLM quên SELECT
             if not sql.upper().startswith("SELECT"):
                 sql = "SELECT " + sql
+
+            # Clean: loại bỏ bracket sai kiểu [TableName] ColumnName → ColumnName
+            import re
+            sql = re.sub(r'\[[A-Za-z_]+\]\s+([A-Za-z_]+)', r'\1', sql)
 
             logger.info(f"Generated SQL: {sql[:100]}...")
 
