@@ -52,7 +52,7 @@ class SQLAgent:
 
 {FEW_SHOT_EXAMPLES}
 
-Schema cần dùng:
+Schema cần dùng (CHỈ được dùng các columns liệt kê bên dưới, KHÔNG được tự thêm column khác):
 {schema_context}
 
 LƯU Ý QUAN TRỌNG:
@@ -63,6 +63,7 @@ LƯU Ý QUAN TRỌNG:
 - KHÔNG dùng backtick (`) hay ngoặc vuông ([]) cho tên cột/table thông thường
 - Chỉ dùng alias ngắn gọn: FROM Dms_Employee e, không phải FROM [Dms_Employee] e
 - Chỉ viết câu SELECT, không INSERT/UPDATE/DELETE
+- TUYỆT ĐỐI không dùng column nào không có trong Schema ở trên
 
 Câu hỏi: "{question}"
 
@@ -71,6 +72,17 @@ Trả về JSON hợp lệ, không giải thích thêm:
     "sql": "<câu SQL hoàn chỉnh>",
     "explanation": "<giải thích ngắn gọn>"
 }}"""
+
+    def _extract_valid_columns(self, schema_context: str) -> set[str]:
+        """Parse schema_context lấy tất cả column names hợp lệ."""
+        import re
+        cols = set()
+        for line in schema_context.splitlines():
+            if line.startswith("Columns:"):
+                # "Columns: Id (int), FullName (nvarchar), ..."
+                for match in re.finditer(r'(\w+)\s*\(', line):
+                    cols.add(match.group(1))
+        return cols
 
     def generate_and_execute(self, question: str, schema_context: str) -> dict:
         """
@@ -109,6 +121,17 @@ Trả về JSON hợp lệ, không giải thích thêm:
             # Clean: loại bỏ bracket sai kiểu [TableName] ColumnName → ColumnName
             import re
             sql = re.sub(r'\[[A-Za-z_]+\]\s+([A-Za-z_]+)', r'\1', sql)
+
+            # Warn nếu LLM dùng column ngoài schema
+            valid_cols = self._extract_valid_columns(schema_context)
+            if valid_cols:
+                used = set(re.findall(r'\b([A-Z][a-zA-Z]+)\b', sql))
+                unknown = used - valid_cols - {"SELECT", "FROM", "WHERE", "AND", "OR", "NOT", "IN",
+                    "JOIN", "LEFT", "RIGHT", "INNER", "ON", "AS", "TOP", "COUNT", "CAST",
+                    "GETDATE", "DATE", "DATEADD", "DATEPART", "DAY", "WEEKDAY", "NULL",
+                    "IS", "LIKE", "BETWEEN", "ORDER", "BY", "GROUP", "HAVING", "DISTINCT"}
+                if unknown:
+                    logger.warning(f"SQL dùng columns không trong schema: {unknown}")
 
             logger.info(f"Generated SQL: {sql[:100]}...")
 
