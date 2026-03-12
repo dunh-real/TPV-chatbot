@@ -85,7 +85,7 @@ class ChatSession():
         # 4. LLM generate
         logger.info("[CHAT] Step 4: Building prompt and calling Ollama LLM...")
         messages = prompt_client.build_chat_messages(
-            query=que, 
+            query=query, 
             search_results=top_docs,
             chat_history=chat_history, 
             reasoning=False
