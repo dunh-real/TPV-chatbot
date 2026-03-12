@@ -79,13 +79,13 @@ class ChatSession():
 
         # 3. Rerank
         logger.info("[CHAT] Step 3: Reranking...")
-        top_docs = rerank_client.rerank(context_query, search_results, top_k=5)
+        top_docs = rerank_client.rerank(query, search_results, top_k=5)
         logger.info(f"[CHAT] Step 3: Done. Top {len(top_docs)} docs.")
 
         # 4. LLM generate
         logger.info("[CHAT] Step 4: Building prompt and calling Ollama LLM...")
         messages = prompt_client.build_chat_messages(
-            query=context_query, 
+            query=query, 
             search_results=top_docs,
             chat_history=chat_history, 
             reasoning=False
