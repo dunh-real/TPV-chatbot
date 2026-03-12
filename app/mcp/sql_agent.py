@@ -14,25 +14,35 @@ MODEL_NAME = "qwen2.5:latest"
 
 # Few-shot examples giúp LLM generate đúng MSSQL syntax
 FEW_SHOT_EXAMPLES = """
--- Ví dụ 1: Lọc bản ghi chưa xóa (ABP soft delete + TenantId)
--- Q: Danh sách nhân viên đang làm việc?
-SELECT e.Id, e.FullName FROM Dms_Employee e
-WHERE e.IsDeleted = 0 AND e.TenantId = 2
+-- Ví dụ 1: Ai đã chấm công hôm nay? (QUẢN LÝ, department_ids = [1,2,3])
+SELECT e.FullName, a.CheckInTime, a.CheckOutTime 
+FROM Hrm_Attendancel a
+JOIN Dms_Employee e ON a.EmployeeId = e.Id AND e.IsDeleted = 0
+WHERE CAST(a.Date AS DATE) = CAST(GETDATE() AS DATE)
+AND a.IsDeleted = 0 AND a.TenantId = 2
+AND e.WorkDepartmentId IN (1,2,3)
 
--- Ví dụ 2: JOIN 2 tables
--- Q: Nhân viên nào chưa chấm công hôm nay?
+-- Ví dụ 2: Tôi đã chấm công chưa? (employee_id = 11)
+SELECT TOP 1 a.CheckInTime, a.CheckOutTime 
+FROM Hrm_Attendancel a
+WHERE a.EmployeeId = 11
+AND CAST(a.Date AS DATE) = CAST(GETDATE() AS DATE)
+AND a.IsDeleted = 0 AND a.TenantId = 2
+
+-- Ví dụ 3: Nhân viên nào chưa chấm công hôm nay? (QUẢN LÝ, department_ids = [1,2,3])
 SELECT e.Id, e.FullName FROM Dms_Employee e
 WHERE e.IsDeleted = 0 AND e.TenantId = 2
+AND e.WorkDepartmentId IN (1,2,3)
 AND e.Id NOT IN (
     SELECT a.EmployeeId FROM Hrm_Attendancel a
     WHERE CAST(a.Date AS DATE) = CAST(GETDATE() AS DATE)
     AND a.IsDeleted = 0 AND a.TenantId = 2
 )
 
--- Ví dụ 3: COUNT + filter
--- Q: Có bao nhiêu đơn nghỉ phép đang chờ duyệt?
+-- Ví dụ 4: Có bao nhiêu đơn nghỉ phép đang chờ duyệt? (NHÂN VIÊN, employee_id = 5)
 SELECT COUNT(*) AS total FROM Hrm_LeaveRequest
 WHERE Status = 0 AND IsDeleted = 0 AND TenantId = 2
+AND EmployeeId = 5
 """
 
 
@@ -71,6 +81,8 @@ LƯU Ý QUAN TRỌNG:
 - Chỉ dùng MSSQL syntax (không dùng MySQL hay PostgreSQL)
 - Luôn thêm WHERE IsDeleted = 0 nếu table có cột IsDeleted (ABP soft delete)
 {tenant_note}
+- BẮT BUỘC: Khi query liên quan đến nhân viên, luôn JOIN Dms_Employee để lấy FullName thay vì chỉ trả về EmployeeId
+- BẮT BUỘC PHÂN QUYỀN - KHÔNG ĐƯỢC BỎ QUA:
 {access_note}
 - Dùng GETDATE() thay vì NOW()
 - Dùng TOP thay vì LIMIT
