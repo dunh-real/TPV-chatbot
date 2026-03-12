@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="MCP Text-to-SQL Server", version="1.0.0")
 
-MCP_PORT = int(os.getenv("MCP_SERVER_PORT", "8001"))
+MCP_PORT = int(os.getenv("MCP_SERVER_PORT", "7999"))
 
 
 class QueryRequest(BaseModel):

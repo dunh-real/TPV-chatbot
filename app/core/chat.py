@@ -66,7 +66,7 @@ class ChatSession():
             chat_history = []
         logger.info(f"[CHAT] Step 1: Got {len(chat_history)} history messages. Contextualizing query via Ollama...")
         # context_query = memory_client.contextualize_query(query, chat_history)
-        logger.info(f"[CHAT] Step 1: Done. context_query='{context_query[:100]}'")
+        # logger.info(f"[CHAT] Step 1: Done. context_query='{context_query[:100]}'")
         try:
             memory_client.add_message(tenant_id, employee_id, "user", query)
         except Exception as e:
@@ -110,9 +110,7 @@ class ChatSession():
         result = {
             "tenant_id": tenant_id,
             "employee_id": employee_id,
-            "employee_db_id": employee_db_id,
-            "is_manager": is_manager,
-            "department_ids": department_ids,
+            "department_id": department_id,
             "query": query,
             "answer": final_answer,
             "citation": citation
