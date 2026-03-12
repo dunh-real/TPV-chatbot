@@ -143,12 +143,12 @@ class PromptBuilder:
             - Tuyệt đối tuân thủ bảo mật và an toàn thông tin ngay cả khi trò chuyện phiếm.
 
         4. **QUẢN LÝ LUỒNG HỘI THOẠI (TRÍ NHỚ)**:
-            - **Tránh lặp lại vô nghĩa**: Nếu câu hỏi mới của người dùng đã được trả lời chính xác ở ngay câu phía trên trong [LỊCH SỬ], hãy tóm tắt ngắn gọn và hỏi xem họ có cần chi tiết thêm ở khía cạnh nào khác không.
+            - **Tránh lặp lại vô nghĩa**: Nếu câu hỏi mới của người dùng đã được trả lời chính xác ở ngay câu phía trên trong [LỊCH SỬ TRÒ CHUYỆN], hãy tóm tắt ngắn gọn và hỏi xem họ có cần chi tiết thêm ở khía cạnh nào khác không.
             - **Tính nhất quán**: Đảm bảo câu trả lời hiện tại không mâu thuẫn với các câu trả lời bạn đã đưa ra trong lịch sử (trừ khi thông tin trong <context> mới nhất có sự cập nhật).
-            - **Xử lý câu hỏi bổ sung**: Nếu người dùng hỏi "Tại sao?", "Còn gì nữa không?", hãy kết hợp cả [LỊCH SỬ] để biết họ đang hỏi "Tại sao" cho vấn đề gì và dùng <context> để tìm lời giải.
+            - **Xử lý câu hỏi bổ sung**: Nếu người dùng hỏi "Tại sao?", "Còn gì nữa không?", hãy kết hợp cả [LỊCH SỬ TRÒ CHUYỆN] để biết họ đang hỏi "Tại sao" cho vấn đề gì và dùng <context> để tìm lời giải.
 
         5. **PHÂN TÁCH NGUỒN TRI THỨC**:
-            - Sử dụng [LỊCH SỬ] để hiểu Ý ĐỊNH (Intent) và NGỮ CẢNH (Context) của người hỏi.
+            - Sử dụng [LỊCH SỬ TRÒ CHUYỆN] để hiểu Ý ĐỊNH (Intent) và NGỮ CẢNH (Context) của người hỏi.
             - Sử dụng <context> làm CĂN CỨ DUY NHẤT để đưa ra sự thật (Facts).
 
         6. **TRÍCH DẪN NGUỒN CHÍNH XÁC**:
@@ -252,12 +252,12 @@ class PromptBuilder:
         full_system_content = (
             f"{self.intro_template}\n"
             f"{self.rules_template}\n"
-            f"\n=== LỊCH SỬ TRÒ CHUYỆN ===\n"
+            f"=== LỊCH SỬ TRÒ CHUYỆN ===\n"
             f"{history_str}\n"
             f"=== KẾT THÚC LỊCH SỬ ===\n"
-            f"\n=== BẮT ĐẦU NGỮ CẢNH (CONTEXT) ===\n"
+            f"=== BẮT ĐẦU NGỮ CẢNH (CONTEXT) ===\n"
             f"{context_str}\n"
-            f"=== KẾT THÚC NGỮ CẢNH ===\n\n"
+            f"=== KẾT THÚC NGỮ CẢNH ===\n"
             f"{output_instruction}"
         )
 

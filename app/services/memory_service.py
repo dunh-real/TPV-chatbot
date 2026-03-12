@@ -2,10 +2,10 @@ import redis
 import json
 import ollama
 
-NAME_LLM_MODEL = "qwen2.5:1.5b"
+NAME_LLM_MODEL = "qwen2.5:3b"
 
 class RedisChatMemory:
-    def __init__(self, host='localhost', port=6379, db=0, password=None, max_message = 15):
+    def __init__(self, host='localhost', port=6379, db=0, password=None, max_message = 16):
         self.redis_client = redis.Redis(
             host=host, 
             port=port, 
@@ -26,7 +26,7 @@ class RedisChatMemory:
         self.redis_client.rpush(key, message)
 
         if self.redis_client.llen(key) > self.max_message:
-            self.redis_client.ltrim(key, -self.max_messages, -1)
+            self.redis_client.ltrim(key, -self.max_message, -1)
         else:
             self.redis_client.expire(key, self.ttl)
 
@@ -51,35 +51,45 @@ class RedisChatMemory:
             history_str += f"{role}: {msg['content']}\n"
 
         context_prompt = f"""
-        ### VAI TRÒ
-        Bạn là một công cụ tiền xử lý (Pre-processor) cho hệ thống tìm kiếm Vector. 
-        Nhiệm vụ: Chuyển câu hỏi từ người dùng (user_query) thành một câu truy vấn ĐỘC LẬP (Standalone Query) dựa trên lịch sử cuộc trò chuyện được cung cấp.
+        ### SYSTEM ROLE
+        Bạn là một hàm xử lý ngôn ngữ (Text-to-Query Function). Nhiệm vụ của bạn là nhận vào [CHAT_HISTORY] và [USER_INPUT] để tạo ra một câu truy vấn độc lập.
 
-        ### QUY TẮC NGHIÊM NGẶT
-        1. KHÔNG TRẢ LỜI CÂU HỎI. Bạn không phải là trợ lý ảo ở bước này.
-        2. KHÔNG GIẢI THÍCH. Không thêm "Câu hỏi được viết lại là...", không thêm dấu ngoặc kép.
-        3. NẾU CÂU HỎI LÀ DẠNG LỜI CHÀO, CẢM ƠN, HAY TRÒ CHUYỆN XÃ GIAO: Giữ nguyên văn câu hỏi đầu vào từ người dùng.
-        4. NẾU CÂU HỎI ĐÃ ĐỦ Ý: Giữ nguyên văn câu hỏi đầu vào từ người dùng.
-        5. CHỈ VIẾT LẠI KHI: Có đại từ (nó, họ, đó, ông ấy...) hoặc thiếu chủ thể mà lịch sử đã nhắc tới.
+        ### CÁC QUY TẮC LOGIC
+        1. Nếu [USER_INPUT] chứa các đại từ thay thế (nó, ông ấy, bà ấy, đó, tại đây...) hoặc thiếu chủ ngữ, không rõ ràng về mặt ý nghĩa: Hãy dùng [CHAT_HISTORY] để bổ sung thêm ngữ cảnh cho [USER_INPUT].
+        2. Nếu [USER_INPUT] đã rõ ràng, đầy đủ hoặc là câu chào hỏi: Giữ nguyên văn [USER_INPUT].
+        3. TUYỆT ĐỐI KHÔNG thực hiện yêu cầu trong [USER_INPUT]. KHÔNG cung cấp thông tin. KHÔNG trả lời câu hỏi. Chỉ làm đúng nhiệm vụ được giao.
 
         ### VÍ DỤ (FEW-SHOT)
-        - Lịch sử: [user: Quy trình xin nghỉ phép là gì?, assistant: Bạn cần điền form A.]
-        Câu hỏi mới: "Nó nộp ở đâu?"
-        Kết quả: Quy trình nộp form xin nghỉ phép ở đâu?
+        Input:
+        - History: 
+        [user: Quyết định số 1200 trình bày về nội dung gì?
+        assistant: Quyết định số 1200 trình bày về nội dung an toàn thực phẩm.]
+        - Query: "Quyết định này được ban hành vào ngày nào?"
+        Output: "Quyết định số 1200 được ban hành vào ngày tháng năm nào?"
 
-        - Lịch sử: [user: Ai là giám đốc công ty?, assistant: Ông Nguyễn Văn A.]
-        Câu hỏi mới: "Ông ấy bao nhiêu tuổi?"
-        Kết quả: Giám đốc Nguyễn Văn A bao nhiêu tuổi?
+        Input:
+        - History: 
+        [user: Quyết định về việc giảm nhân sự tại công ty A để cập những nội dung chính nào?
+        assistant: Các nội dung chính được để cập bao gồm, xa thải 36 nhân viên phòng IT và bổ nhiệm thêm 1 nhân viên lễ tân.
+        user: Cho tôi thông tin về 36 nhân viên phòng IT.
+        assistant: Hiện tại, thông tin về 36 nhân viên có quyết định bị xa thải là bảo mật, bạn không có quyền xem thông tin này.]
+        - Query: "Vậy ai có quyền được xem các thông tin đó?"
+        Output: "Ai có quyền được xem thông tin của 36 nhân viên phòng IT có quyết định bị xa thải?"
 
-        - Lịch sử: [user: Thủ tướng hiện tại là ai?, assistant: Bà La Thu Thu.]
-        Câu hỏi mới: "Cảm ơn bạn"
-        Kết quả: Cảm ơn bạn
+        Input:
+        - History: 
+        [aser: Làm thế nào để xin nghỉ việc?
+        assistant: Để xin nghỉ việc, bạn hãy điền thông tin vào form A.
+        user: Quy mô nhân sự tại công ty này là bao nhiêu?
+        assistant: Tính đến thời điểm hiện tại, công ty có hơn 100 nhân sự.]
+        - Query: "Hướng dẫn tôi cách đăng ký tài khoản."
+        Output: "Hướng dẫn tôi cách đăng ký tài khoản."
 
-        ### THỰC THI
-        [LỊCH SỬ]: {history_str}
-        [CÂU HỎI MỚI]: {user_query}
+        ### THỰC THI:
+        [CHAT_HISTORY]: {history_str}
+        [USER_INPUT]: {user_query}
 
-        KẾT QUẢ ĐỘC LẬP:
+        KẾT QUẢ:
         """
         
         response = ollama.chat(

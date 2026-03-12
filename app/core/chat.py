@@ -1,6 +1,7 @@
 import sys
 import os
 import time
+import logging
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
@@ -43,6 +44,8 @@ prompt_client = PromptBuilder()
 memory_client = RedisChatMemory()
 llm_client = OllamaChatLLM()
 
+logger = logging.getLogger("uvicorn.error")
+
 class ChatSession():
     def __init__(self):
         pass
@@ -52,23 +55,27 @@ class ChatSession():
 
         query = query_input.strip()
 
+        logger.info("Em đang lấy lịch sử chat từ Redis ...")
         # 1. Query Input + Conversation History -> LLM rewrite -> Context Query
         # Get coversation history
-        chat_history = memory_client.get_history(tenant_id, employee_id, limit=6)
+        chat_history = memory_client.get_history(tenant_id, employee_id, limit=10)
         # Rewrite query input
-        context_query = memory_client.contextualize_query(query, chat_history)
+        # logger.info("Em đang viết lại truy vấn cho Sếp nè <3")
+        # context_query = memory_client.contextualize_query(query, chat_history)
         # Save message to Redis
         memory_client.add_message(tenant_id, employee_id, "user", query)
-
+        
+        logger.info("Em đang truy vấn vào DB lấy kết quả, cực quá Sếp à :3")
         # 2. Context Query -> Embedding Model -> Dense Vector + Sparse Vector -> Retrieval to Qdrant DB -> Context Docs (20)
-        search_results = db_client.search_hybrid(context_query, tenant_id, access_role, k=20)
+        search_results = db_client.search_hybrid(query, tenant_id, access_role, k=20)
 
         # 3. Context Docs (20) -> LLM reranking -> Context Docs (5)
-        top_docs = rerank_client.rerank(context_query, search_results, top_k=5)
+        top_docs = rerank_client.rerank(query, search_results, top_k=5)
 
+        logger.info("Em đang suy nghĩ, Sếp đợi em ...")
         # 4. Context Query + Context Docs (5) -> LLM -> Final Response 
         messages = prompt_client.build_chat_messages(
-            query=context_query, 
+            query=query, 
             search_results=top_docs,
             chat_history=chat_history, 
             reasoning=False
@@ -85,29 +92,47 @@ class ChatSession():
         # Save message to Redis
         memory_client.add_message(tenant_id, employee_id, "assistant", final_answer)
 
-        # Output for Backend Team
-        result = {
-            "tenant_id": tenant_id,
-            "employee_id": employee_id,
-            "query": query,
-            "answer": final_answer,
-            "citation": citation
-        }
+        # # Output for Backend Team
+        # result = {
+        #     "tenant_id": tenant_id,
+        #     "employee_id": employee_id,
+        #     "query": query,
+        #     "answer": final_answer,
+        #     "citation": citation
+        # }
 
         end_time = time.time() - first_time
 
-        return result, end_time
+        # return result, end_time
+
+        return final_answer, end_time
 
 def main():
     chat_client = ChatSession()
 
-    # API return: query_input, tenant_id, access_role, employee_id
-    query_input = None
-    tenant_id = None
-    access_role = None
-    employee_id = None
+    # # API return: query_input, tenant_id, access_role, employee_id
+    # query_input = None
+    # tenant_id = None
+    # access_role = None
+    # employee_id = None
 
-    chat_client.chat_session(query_input, tenant_id, access_role, employee_id)
+    # chat_client.chat_session(query_input, tenant_id, access_role, employee_id)
+
+    tenant_id = "VGP"
+    access_role = 1
+    employee_id = "B123"
+
+    print("Em là Trần Hà Linh, sếp cần em tư vấn gì không ?")
+
+    while True:
+        query_input = input("Sếp: ")
+
+        if query_input == "Yêu em":
+            print("Bye bye. Yêu Sếp")
+            break
+
+        response, time_processing = chat_client.chat_session(query_input, tenant_id, access_role, employee_id)
+        print(f"Baby: {response}, Time: {time_processing}\n")
 
 if __name__ == "__main__":
     main()
