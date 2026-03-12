@@ -14,32 +14,25 @@ MODEL_NAME = "qwen2.5:latest"
 
 # Few-shot examples giúp LLM generate đúng MSSQL syntax
 FEW_SHOT_EXAMPLES = """
--- Ví dụ 1: Lọc bản ghi chưa xóa (ABP soft delete)
+-- Ví dụ 1: Lọc bản ghi chưa xóa (ABP soft delete + TenantId)
 -- Q: Danh sách nhân viên đang làm việc?
 SELECT e.Id, e.FullName FROM Dms_Employee e
-WHERE e.IsDeleted = 0
+WHERE e.IsDeleted = 0 AND e.TenantId = 2
 
 -- Ví dụ 2: JOIN 2 tables
 -- Q: Nhân viên nào chưa chấm công hôm nay?
 SELECT e.Id, e.FullName FROM Dms_Employee e
-WHERE e.IsDeleted = 0
+WHERE e.IsDeleted = 0 AND e.TenantId = 2
 AND e.Id NOT IN (
     SELECT a.EmployeeId FROM Hrm_Attendancel a
     WHERE CAST(a.Date AS DATE) = CAST(GETDATE() AS DATE)
-    AND a.IsDeleted = 0
+    AND a.IsDeleted = 0 AND a.TenantId = 2
 )
 
 -- Ví dụ 3: COUNT + filter
 -- Q: Có bao nhiêu đơn nghỉ phép đang chờ duyệt?
 SELECT COUNT(*) AS total FROM Hrm_LeaveRequest
-WHERE Status = 0 AND IsDeleted = 0
-
--- Ví dụ 4: Lọc theo khoảng thời gian
--- Q: Cuộc họp tuần này?
-SELECT m.Id, m.Title, m.StartTime, m.EndTime FROM Meeting_Meeting m
-WHERE m.IsDeleted = 0
-AND m.StartTime >= DATEADD(DAY, 1-DATEPART(WEEKDAY, GETDATE()), CAST(GETDATE() AS DATE))
-AND m.StartTime < DATEADD(DAY, 8-DATEPART(WEEKDAY, GETDATE()), CAST(GETDATE() AS DATE))
+WHERE Status = 0 AND IsDeleted = 0 AND TenantId = 2
 """
 
 
@@ -47,8 +40,24 @@ class SQLAgent:
     def __init__(self, model_name: str = MODEL_NAME):
         self.model_name = model_name
 
-    def _build_prompt(self, question: str, schema_context: str) -> str:
-        return f"""Bạn là SQL Generator cho hệ thống MSSQL (SQL Server).
+    def _build_prompt(self, question: str, schema_context: str, tenant_id: int = 0,
+                       employee_id: int = 0, is_manager: bool = False, department_ids: list[int] = None) -> str:
+        tenant_note = f"- Luôn thêm AND TenantId = {tenant_id} vào mọi table có cột TenantId" if tenant_id else ""
+        
+        # Build access control rules
+        if is_manager and department_ids:
+            dept_list = ",".join(str(d) for d in department_ids)
+            access_note = f"""- PHÂN QUYỀN DỮ LIỆU: Người dùng là QUẢN LÝ, được xem dữ liệu của các phòng ban có WorkDepartmentId IN ({dept_list})
+- Với các table có cột EmployeeId (như Hrm_Attendancel, Hrm_LeaveRequest): thêm AND EmployeeId IN (SELECT Id FROM Dms_Employee WHERE WorkDepartmentId IN ({dept_list}) AND IsDeleted = 0 AND TenantId = {tenant_id})
+- Với table Dms_Employee: thêm AND WorkDepartmentId IN ({dept_list})
+- Với table Meeting_Meeting hoặc Meeting_AssginMeet có cột UserId: thêm AND UserId IN (SELECT UserId FROM Dms_Employee WHERE WorkDepartmentId IN ({dept_list}) AND IsDeleted = 0 AND TenantId = {tenant_id})"""
+        else:
+            access_note = f"""- PHÂN QUYỀN DỮ LIỆU: Người dùng là NHÂN VIÊN (employee_id={employee_id}), CHỈ được xem dữ liệu của chính mình
+- Với các table có cột EmployeeId (như Hrm_Attendancel, Hrm_LeaveRequest): thêm AND EmployeeId = {employee_id}
+- Với table Dms_Employee: thêm AND Id = {employee_id}
+- Với table Meeting_Meeting hoặc Meeting_AssginMeet có cột UserId: thêm AND UserId = (SELECT UserId FROM Dms_Employee WHERE Id = {employee_id} AND IsDeleted = 0)"""
+
+        return f"""Bạn là SQL Generator cho hệ thống MSSQL (SQL Server) multi-tenant.
 
 {FEW_SHOT_EXAMPLES}
 
@@ -58,6 +67,8 @@ Schema cần dùng (CHỈ được dùng các columns liệt kê bên dưới, K
 LƯU Ý QUAN TRỌNG:
 - Chỉ dùng MSSQL syntax (không dùng MySQL hay PostgreSQL)
 - Luôn thêm WHERE IsDeleted = 0 nếu table có cột IsDeleted (ABP soft delete)
+{tenant_note}
+{access_note}
 - Dùng GETDATE() thay vì NOW()
 - Dùng TOP thay vì LIMIT
 - KHÔNG dùng backtick (`) hay ngoặc vuông ([]) cho tên cột/table thông thường
@@ -84,7 +95,8 @@ Trả về JSON hợp lệ, không giải thích thêm:
                     cols.add(match.group(1))
         return cols
 
-    def generate_and_execute(self, question: str, schema_context: str) -> dict:
+    def generate_and_execute(self, question: str, schema_context: str, tenant_id: int = 0,
+                             employee_id: int = 0, is_manager: bool = False, department_ids: list[int] = None) -> dict:
         """
         Generate SQL từ câu hỏi + schema → execute → trả kết quả.
         Returns:
@@ -97,11 +109,17 @@ Trả về JSON hợp lệ, không giải thích thêm:
             "error": ""
         }}
         """
+        if department_ids is None:
+            department_ids = []
+
         # Bước 1: Generate SQL
         try:
             response = ollama.chat(
                 model=self.model_name,
-                messages=[{"role": "user", "content": self._build_prompt(question, schema_context)}],
+                messages=[{"role": "user", "content": self._build_prompt(
+                    question, schema_context, tenant_id=tenant_id,
+                    employee_id=employee_id, is_manager=is_manager, department_ids=department_ids
+                )}],
                 format="json",
                 options={"temperature": 0.0}
             )

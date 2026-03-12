@@ -50,20 +50,22 @@ class ChatSession():
     def __init__(self):
         pass
 
-    def chat_session(self, query_input, tenant_id, access_role, employee_id, department_id=0): 
+    def chat_session(self, query_input, tenant_id, access_role, employee_id, employee_db_id=0, is_manager=False, department_ids=None): 
         first_time = time.time()
 
         query = query_input.strip()
+        if department_ids is None:
+            department_ids = []
 
         # 1. Query Input + Conversation History -> LLM rewrite -> Context Query
         logger.info("[CHAT] Step 1: Getting chat history from Redis...")
         try:
-            chat_history = memory_client.get_history(tenant_id, employee_id, limit=6)
+            chat_history = memory_client.get_history(tenant_id, employee_id, limit=40)
         except Exception as e:
             logger.warning(f"[CHAT] Step 1: Redis error: {e}. Continuing without history.")
             chat_history = []
         logger.info(f"[CHAT] Step 1: Got {len(chat_history)} history messages. Contextualizing query via Ollama...")
-        context_query = memory_client.contextualize_query(query, chat_history)
+        # context_query = memory_client.contextualize_query(query, chat_history)
         logger.info(f"[CHAT] Step 1: Done. context_query='{context_query[:100]}'")
         try:
             memory_client.add_message(tenant_id, employee_id, "user", query)
@@ -72,7 +74,7 @@ class ChatSession():
 
         # 2. Hybrid search
         logger.info("[CHAT] Step 2: Hybrid search in Qdrant...")
-        search_results = db_client.search_hybrid(context_query, tenant_id, access_role, k=20)
+        search_results = db_client.search_hybrid(query, tenant_id, access_role, k=20)
         logger.info(f"[CHAT] Step 2: Done. Got {len(search_results)} results.")
 
         # 3. Rerank
@@ -108,7 +110,9 @@ class ChatSession():
         result = {
             "tenant_id": tenant_id,
             "employee_id": employee_id,
-            "department_id": department_id,
+            "employee_db_id": employee_db_id,
+            "is_manager": is_manager,
+            "department_ids": department_ids,
             "query": query,
             "answer": final_answer,
             "citation": citation

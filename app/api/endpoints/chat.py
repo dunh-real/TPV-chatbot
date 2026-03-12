@@ -30,7 +30,7 @@ def ask_question(request: ChatRequest):
     """
     Gửi câu hỏi và nhận câu trả lời từ hệ thống RAG.
     """
-    logger.info(f"[ASK] Received: question='{request.question}', tenant={request.tenant_id}, role={request.role_id}, user={request.user_id}, dept={request.department_id}")
+    logger.info(f"[ASK] Received: question='{request.question}', tenant={request.tenant_id}, role={request.role_id}, user={request.user_id}, employee={request.employee_id}, is_manager={request.is_manager}, dept_ids={request.department_ids}")
     try:
         chat_session = _get_chat_session()
         logger.info("[ASK] Calling chat_session()...")
@@ -39,7 +39,9 @@ def ask_question(request: ChatRequest):
             tenant_id=request.tenant_id,
             access_role=request.role_id,
             employee_id=request.user_id,
-            department_id=request.department_id,
+            employee_db_id=request.employee_id,
+            is_manager=request.is_manager,
+            department_ids=request.department_ids,
         )
 
         logger.info(f"[ASK] Done in {processing_time:.2f}s, answer length={len(result.get('answer', ''))}")

@@ -79,7 +79,7 @@
     {
       "group": "DMS - Meeting",
       "tables": [
-        { "tableName": "Meeting_Meeting",        "entity": "Meetings",        "description": "Cuộc họp" },
+        { "tableName": "Meeting_Meeting",        "entity": "Meetings",        "description": "Cuộc họp. Cột tiêu đề là RoomTitle (không phải Title). Có StartTime, EndTime, RoomName, RoomTitle, MeetStatus, Duration" },
         { "tableName": "Meeting_AssginMeet",     "entity": "MeetAssign",      "description": "Phân công cuộc họp" },
         { "tableName": "Meeting_MeetingHistory", "entity": "MeetingHistory",  "description": "Lịch sử cuộc họp" },
         { "tableName": "Meeting_MeetAudio",      "entity": "MeetAudio",       "description": "Audio cuộc họp" },

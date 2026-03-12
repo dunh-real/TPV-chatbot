@@ -32,6 +32,12 @@ MCP_PORT = int(os.getenv("MCP_SERVER_PORT", "8001"))
 
 class QueryRequest(BaseModel):
     question: str
+    tenant_id: str = "0"
+    user_id: str = "0"
+    role_id: int = 0
+    employee_id: int = 0
+    is_manager: bool = False
+    department_ids: list[int] = []
 
 
 class QueryResponse(BaseModel):
@@ -54,7 +60,8 @@ def health():
 @app.post("/query", response_model=QueryResponse)
 def query(request: QueryRequest):
     question = request.question.strip()
-    logger.info(f"[MCP] Query: {question}")
+    tenant_id = int(request.tenant_id) if request.tenant_id.isdigit() else 0
+    logger.info(f"[MCP] Query: {question} | tenant={tenant_id} | user={request.user_id} | is_manager={request.is_manager} | dept_ids={request.department_ids}")
 
     # Step 1: Intent
     intent = intent_agent.classify(question)
@@ -80,8 +87,14 @@ def query(request: QueryRequest):
     column_result = column_agent.prune_columns(question, tables)
     schema_context = column_result.get("schema_context", "")
 
-    # Step 4: SQL
-    sql_result = sql_agent.generate_and_execute(question, schema_context)
+    # Step 4: SQL (truyền tenant_id + access control info)
+    sql_result = sql_agent.generate_and_execute(
+        question, schema_context,
+        tenant_id=tenant_id,
+        employee_id=request.employee_id,
+        is_manager=request.is_manager,
+        department_ids=request.department_ids
+    )
 
     logger.info(f"[MCP] Done | workspace={workspace} | rows={sql_result['row_count']} | error={sql_result['error'][:50] if sql_result['error'] else ''}")
 
