@@ -47,12 +47,15 @@ class SQLAgent:
         # Build access control rules
         if is_manager and department_ids:
             dept_list = ",".join(str(d) for d in department_ids)
-            access_note = f"""- PHÂN QUYỀN DỮ LIỆU: Người dùng là QUẢN LÝ, được xem dữ liệu của các phòng ban có WorkDepartmentId IN ({dept_list})
-- Với các table có cột EmployeeId (như Hrm_Attendancel, Hrm_LeaveRequest): thêm AND EmployeeId IN (SELECT Id FROM Dms_Employee WHERE WorkDepartmentId IN ({dept_list}) AND IsDeleted = 0 AND TenantId = {tenant_id})
-- Với table Dms_Employee: thêm AND WorkDepartmentId IN ({dept_list})
-- Với table Meeting_Meeting hoặc Meeting_AssginMeet có cột UserId: thêm AND UserId IN (SELECT UserId FROM Dms_Employee WHERE WorkDepartmentId IN ({dept_list}) AND IsDeleted = 0 AND TenantId = {tenant_id})"""
+            access_note = f"""- PHÂN QUYỀN DỮ LIỆU: Người dùng hiện tại có employee_id = {employee_id}, là QUẢN LÝ, được xem dữ liệu của các phòng ban có WorkDepartmentId IN ({dept_list})
+- Nếu câu hỏi hỏi về "tôi" hoặc "của tôi": dùng EmployeeId = {employee_id} (chỉ lấy data của chính người hỏi)
+- Nếu câu hỏi hỏi về nhân viên/phòng ban/tổng hợp: dùng EmployeeId IN (SELECT Id FROM Dms_Employee WHERE WorkDepartmentId IN ({dept_list}) AND IsDeleted = 0 AND TenantId = {tenant_id})
+- Với table Dms_Employee khi hỏi về "tôi": thêm AND Id = {employee_id}
+- Với table Dms_Employee khi hỏi về phòng ban: thêm AND WorkDepartmentId IN ({dept_list})
+- Với table Meeting_Meeting hoặc Meeting_AssginMeet có cột UserId khi hỏi về "tôi": thêm AND UserId = (SELECT UserId FROM Dms_Employee WHERE Id = {employee_id} AND IsDeleted = 0)
+- Với table Meeting khi hỏi về phòng ban: thêm AND UserId IN (SELECT UserId FROM Dms_Employee WHERE WorkDepartmentId IN ({dept_list}) AND IsDeleted = 0 AND TenantId = {tenant_id})"""
         else:
-            access_note = f"""- PHÂN QUYỀN DỮ LIỆU: Người dùng là NHÂN VIÊN (employee_id={employee_id}), CHỈ được xem dữ liệu của chính mình
+            access_note = f"""- PHÂN QUYỀN DỮ LIỆU: Người dùng hiện tại có employee_id = {employee_id}, là NHÂN VIÊN, CHỈ được xem dữ liệu của chính mình
 - Với các table có cột EmployeeId (như Hrm_Attendancel, Hrm_LeaveRequest): thêm AND EmployeeId = {employee_id}
 - Với table Dms_Employee: thêm AND Id = {employee_id}
 - Với table Meeting_Meeting hoặc Meeting_AssginMeet có cột UserId: thêm AND UserId = (SELECT UserId FROM Dms_Employee WHERE Id = {employee_id} AND IsDeleted = 0)"""
