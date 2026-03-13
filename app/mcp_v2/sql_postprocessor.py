@@ -34,11 +34,20 @@ class SQLPostProcessor:
         if not sql:
             return sql
 
+        sql = self._clean_newlines(sql)
         sql = self._add_n_prefix(sql)
         sql = self._ensure_tenant_filter(sql, tenant_id)
         sql = self._inject_access_filter(sql, tenant_id, employee_id, is_manager, department_ids)
 
         logger.info(f"[PostProcessor] Final SQL: {sql[:150]}...")
+        return sql
+
+    def _clean_newlines(self, sql: str) -> str:
+        """Loại bỏ literal \\n trong SQL (Gemini hay trả về escaped newlines)."""
+        sql = sql.replace("\\n", " ")
+        sql = sql.replace("\n", " ")
+        # Gộp multiple spaces thành 1
+        sql = re.sub(r'\s+', ' ', sql).strip()
         return sql
 
     def _add_n_prefix(self, sql: str) -> str:
@@ -93,7 +102,8 @@ class SQLPostProcessor:
                     filter_clause = f"{alias}.WorkDepartmentId IN ({dept_list})"
                 else:
                     filter_clause = f"{alias}.Id = {employee_id}"
-                sql = self._inject_where_clause(sql, filter_clause, alias)
+                if not self._filter_exists(sql, "WorkDepartmentId IN" if is_manager else f"Id = {employee_id}", alias):
+                    sql = self._inject_where_clause(sql, filter_clause, alias)
 
             # Case 2: Tables có EmployeeId
             elif table_name in EMPLOYEE_ID_TABLES:
@@ -107,7 +117,8 @@ class SQLPostProcessor:
                     )
                 else:
                     filter_clause = f"{alias}.{col} = {employee_id}"
-                sql = self._inject_where_clause(sql, filter_clause, alias)
+                if not self._filter_exists(sql, f"{col} IN" if is_manager else f"{col} = {employee_id}", alias):
+                    sql = self._inject_where_clause(sql, filter_clause, alias)
 
             # Case 3: Tables có UserId (Meeting)
             elif table_name in USER_ID_TABLES:
@@ -124,7 +135,8 @@ class SQLPostProcessor:
                         f"{alias}.{col} = (SELECT UserId FROM Dms_Employee "
                         f"WHERE Id = {employee_id} AND IsDeleted = 0)"
                     )
-                sql = self._inject_where_clause(sql, filter_clause, alias)
+                if not self._filter_exists(sql, f"{col} IN" if is_manager else f"{col} =", alias):
+                    sql = self._inject_where_clause(sql, filter_clause, alias)
 
         return sql
 
@@ -156,16 +168,14 @@ class SQLPostProcessor:
 
         return results
 
+    def _filter_exists(self, sql: str, keyword: str, alias: str) -> bool:
+        """Kiểm tra xem filter đã tồn tại trong SQL chưa (tránh duplicate inject)."""
+        return keyword in sql
+
     def _inject_where_clause(self, sql: str, filter_clause: str, alias: str) -> str:
         """
         Inject filter clause vào SQL.
-        Kiểm tra xem filter đã tồn tại chưa trước khi inject.
         """
-        # Kiểm tra filter đã có trong SQL chưa (tránh duplicate)
-        # Lấy phần core của filter để check (bỏ alias prefix)
-        core_check = filter_clause.split(".", 1)[-1] if "." in filter_clause else filter_clause
-        if core_check[:30] in sql:
-            return sql
 
         # Tìm vị trí WHERE cuối cùng liên quan đến alias này
         # Đơn giản: thêm AND ở cuối WHERE clause
