@@ -1,0 +1,118 @@
+{
+  "database": "erps",
+  "tables": [
+    {
+      "group": "ABP Framework",
+      "tables": [
+        { "tableName": "AbpUsers",                                "entity": "User",                                  "description": "Người dùng hệ thống" },
+        { "tableName": "AbpRoles",                                "entity": "Role",                                  "description": "Vai trò" },
+        { "tableName": "AbpTenants",                              "entity": "Tenant",                                "description": "Tenant" },
+        { "tableName": "AbpEditions",                             "entity": "SubscribableEdition",                   "description": "Gói dịch vụ" },
+        { "tableName": "AbpPermissions",                          "entity": "-",                                     "description": "Phân quyền" },
+        { "tableName": "AbpUserRoles",                            "entity": "-",                                     "description": "User - Role mapping" },
+        { "tableName": "AbpUserClaims",                           "entity": "-",                                     "description": "Claims của user" },
+        { "tableName": "AbpUserOrganizationUnits",                "entity": "-",                                     "description": "User - OrganizationUnit mapping" },
+        { "tableName": "AbpOrganizationUnits",                    "entity": "-",                                     "description": "Đơn vị tổ chức" },
+        { "tableName": "AbpRoleClaims",                           "entity": "-",                                     "description": "Claims của role" },
+        { "tableName": "AbpSettings",                             "entity": "-",                                     "description": "Cài đặt hệ thống" },
+        { "tableName": "AbpNotifications",                        "entity": "-",                                     "description": "Thông báo" },
+        { "tableName": "AbpNotificationSubscriptions",            "entity": "-",                                     "description": "Đăng ký thông báo" },
+        { "tableName": "AbpTenantNotifications",                  "entity": "-",                                     "description": "Thông báo tenant" },
+        { "tableName": "AbpUserNotifications",                    "entity": "-",                                     "description": "Thông báo user" },
+        { "tableName": "AbpFeatures",                             "entity": "-",                                     "description": "Features" },
+        { "tableName": "AbpTenantConnectionStrings",              "entity": "-",                                     "description": "Connection strings của tenant" },
+        { "tableName": "AbpBinaryObjects",                        "entity": "BinaryObject",                          "description": "Binary objects (file lưu trữ)" },
+        { "tableName": "AbpFriendships",                          "entity": "Friendship",                            "description": "Kết bạn" },
+        { "tableName": "AbpChatMessages",                         "entity": "ChatMessage",                           "description": "Tin nhắn chat ABP" },
+        { "tableName": "AbpSubscriptionPayments",                 "entity": "SubscriptionPayment",                   "description": "Thanh toán gói dịch vụ" },
+        { "tableName": "AbpSubscriptionPaymentExtensionDatas",    "entity": "SubscriptionPaymentExtensionData",      "description": "Dữ liệu mở rộng thanh toán" },
+        { "tableName": "AbpInvoices",                             "entity": "Invoice",                               "description": "Hóa đơn" },
+        { "tableName": "AbpUserDelegations",                      "entity": "UserDelegation",                        "description": "Ủy quyền user" },
+        { "tableName": "AbpUserSubscriptionPayments",             "entity": "UserSubscriptionPayment",               "description": "Thanh toán của user" }
+      ]
+    },
+    {
+      "group": "ABP Customize",
+      "tables": [
+        { "tableName": "AbpDashboardWidgets",                          "entity": "DashboardWidget",                       "description": "Widget dashboard" },
+        { "tableName": "AbpEditionPermissions",                        "entity": "EditionPermission",                     "description": "Quyền theo gói dịch vụ" },
+        { "tableName": "AbpEditionDashboardWidgets",                   "entity": "EditionDashboardWidget",                "description": "Widget theo gói dịch vụ" },
+        { "tableName": "AbpRoleDashboardWidgets",                      "entity": "RoleDashboardWidget",                   "description": "Widget theo role" },
+        { "tableName": "AbpEmailTemplates",                            "entity": "EmailTemplate",                         "description": "Mẫu email" },
+        { "tableName": "AbpCurrencyRates",                             "entity": "CurrencyRate",                          "description": "Tỷ giá tiền tệ" },
+        { "tableName": "AbpApprovalHistory",                           "entity": "ApprovalHistory",                       "description": "Lịch sử phê duyệt" },
+        { "tableName": "AbpDynamicEntityPropertyValueRevisions",       "entity": "DynamicEntityPropertyValueRevision",    "description": "Lịch sử thay đổi dynamic property" },
+        { "tableName": "AbpDynamicProperties_Entity_UI",               "entity": "DynamicPropertiesEntityUI",             "description": "UI dynamic properties" },
+        { "tableName": "AbpDynamicProperties_Entity_UI_Page",          "entity": "DynamicPropertiesEntityUIPage",         "description": "UI dynamic properties page" },
+        { "tableName": "AbpDynamicProperties_Entity_UI_Page_Detail",   "entity": "DynamicPropertiesEntityUIPageDetail",   "description": "UI dynamic properties page detail" }
+      ]
+    },
+    {
+      "group": "DMS - General Settings",
+      "tables": [
+        { "tableName": "Dms_TenantInfo",          "entity": "TenantInfo",     "description": "Thông tin tenant" },
+        { "tableName": "Dms_TenantInfo_Detail",   "entity": "TenantInfoDetail","description": "Chi tiết thông tin tenant" },
+        { "tableName": "Dms_Nation",              "entity": "Nation",          "description": "Quốc gia" },
+        { "tableName": "Dms_Ethnic",              "entity": "Ethnic",          "description": "Dân tộc" },
+        { "tableName": "Dms_City",                "entity": "City",            "description": "Tỉnh/Thành phố" },
+        { "tableName": "Dms_District",            "entity": "District",        "description": "Quận/Huyện" },
+        { "tableName": "Dms_Ward",                "entity": "Ward",            "description": "Phường/Xã" }
+      ]
+    },
+    {
+      "group": "DMS - System Administration",
+      "tables": [
+        { "tableName": "Dms_Employee",        "entity": "Employee",       "description": "Nhân viên" },
+        { "tableName": "Dms_WorkDepartment",  "entity": "WorkDepartment", "description": "Phòng ban" },
+        { "tableName": "Dms_WorkPosition",    "entity": "WorkPosition",   "description": "Chức vụ" }
+      ]
+    },
+    {
+      "group": "DMS - HRM",
+      "tables": [
+        { "tableName": "Hrm_Attendancel",   "entity": "Attendancel",  "description": "Chấm công" },
+        { "tableName": "Hrm_WorkShift",     "entity": "WorkShift",    "description": "Ca làm việc" },
+        { "tableName": "Hrm_Devices",       "entity": "Device",       "description": "Thiết bị chấm công" },
+        { "tableName": "Hrm_LeaveRequest",  "entity": "LeaveRequest", "description": "Đơn xin nghỉ phép" }
+      ]
+    },
+    {
+      "group": "DMS - Meeting",
+      "tables": [
+        { "tableName": "Meeting_Meeting",        "entity": "Meetings",        "description": "Cuộc họp. Cột tiêu đề là RoomTitle (không phải Title). Có StartTime, EndTime, RoomName, RoomTitle, MeetStatus, Duration" },
+        { "tableName": "Meeting_AssginMeet",     "entity": "MeetAssign",      "description": "Phân công cuộc họp" },
+        { "tableName": "Meeting_MeetingHistory", "entity": "MeetingHistory",  "description": "Lịch sử cuộc họp" },
+        { "tableName": "Meeting_MeetAudio",      "entity": "MeetAudio",       "description": "Audio cuộc họp" },
+        { "tableName": "Meeting_Transcript",     "entity": "MeetTranscript",  "description": "Transcript cuộc họp" }
+      ]
+    },
+    {
+      "group": "DMS - Recruitment",
+      "tables": [
+        { "tableName": "Hrm_JobPosting",       "entity": "JobPosting",      "description": "Tin tuyển dụng" },
+        { "tableName": "Rcm_RecruitmentPlan",  "entity": "RecruitmentPlan", "description": "Kế hoạch tuyển dụng" }
+      ]
+    },
+    {
+      "group": "DMS - Notifications",
+      "tables": [
+        { "tableName": "Dms_SystemNotifications",     "entity": "SystemNotification",     "description": "Thông báo hệ thống" },
+        { "tableName": "Dms_SystemNotificationUsers", "entity": "SystemNotificationUser", "description": "Thông báo theo user" }
+      ]
+    },
+    {
+      "group": "DMS - AI Chatbot",
+      "tables": [
+        { "tableName": "AIChatConversations", "entity": "AIChatConversation", "description": "Cuộc hội thoại AI" },
+        { "tableName": "AIChatMessages",      "entity": "AIChatMessage",      "description": "Tin nhắn AI" }
+      ]
+    },
+    {
+      "group": "DMS - Other",
+      "tables": [
+        { "tableName": "AbpUserInvoices",    "entity": "UserInvoice",      "description": "Hóa đơn user" },
+        { "tableName": "AbpUserDeviceTokens","entity": "UserDeviceToken",  "description": "Device token (push notification)" }
+      ]
+    }
+  ]
+}

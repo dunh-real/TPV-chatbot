@@ -1,0 +1,1276 @@
+[
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "Id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "TenantId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "Code",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "UserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "RoleId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "Avatar",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "FullName",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "DoB",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "Gender",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "Address",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "Email",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "Phone",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "WorkDepartmentId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "WorkPositionId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "TextSearch",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "CreationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "CreatorUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "LastModificationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "LastModifierUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "IsDeleted",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "DeleterUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "DeletionTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_Employee",
+    "COLUMN_NAME": "Log",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkDepartment",
+    "COLUMN_NAME": "Id",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkDepartment",
+    "COLUMN_NAME": "TenantId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkDepartment",
+    "COLUMN_NAME": "ParentId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkDepartment",
+    "COLUMN_NAME": "Code",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkDepartment",
+    "COLUMN_NAME": "DepartmentCode",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkDepartment",
+    "COLUMN_NAME": "DisplayName",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkDepartment",
+    "COLUMN_NAME": "Describe",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkDepartment",
+    "COLUMN_NAME": "CreationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkDepartment",
+    "COLUMN_NAME": "CreatorUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkDepartment",
+    "COLUMN_NAME": "LastModificationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkDepartment",
+    "COLUMN_NAME": "LastModifierUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkDepartment",
+    "COLUMN_NAME": "IsDeleted",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkDepartment",
+    "COLUMN_NAME": "DeleterUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkDepartment",
+    "COLUMN_NAME": "DeletionTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "Id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "IsManager",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "CreationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "CreatorUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "LastModificationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "LastModifierUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "IsDeleted",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "DeleterUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "DeletionTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "TenantId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "Numbering",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "Code",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "Name",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "Note",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "Order",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "IsDefault",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Dms_WorkPosition",
+    "COLUMN_NAME": "IsActive",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "Id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "TenantId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "EmployeeId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "DeviceId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "Date",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "CheckInTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "CheckOutTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "Data",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "VerifyMethod",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "Type",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "Note",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "Log",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "CreationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "CreatorUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "LastModificationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "LastModifierUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "IsDeleted",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "DeleterUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_Attendancel",
+    "COLUMN_NAME": "DeletionTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "Id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "TenantId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "RecruitmentPlanId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "WorkPositionId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "Code",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "Name",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "Description",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "Requirements",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "SalaryRange",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "CreatedDate",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "Note",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "Link",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "IsActive",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "TextSearch",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "Log",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "CreationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "CreatorUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "LastModificationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "LastModifierUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "IsDeleted",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "DeleterUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_JobPosting",
+    "COLUMN_NAME": "DeletionTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "Id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "TenantId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "EmployeeId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "StartDate",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "EndDate",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "LeaveType",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "Reason",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "Status",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "ApprovedId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "ApprovedDate",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "IsPaidLeave",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "TextSearch",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "CreationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "CreatorUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "LastModificationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "LastModifierUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "IsDeleted",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "DeleterUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_LeaveRequest",
+    "COLUMN_NAME": "DeletionTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "Id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "TenantId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "Code",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "Name",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "StartTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "EndTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "IsOvernight",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "TextSearch",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "Note",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "IsActive",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "CreationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "CreatorUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "LastModificationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "LastModifierUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "IsDeleted",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "DeleterUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Hrm_WorkShift",
+    "COLUMN_NAME": "DeletionTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_AssginMeet",
+    "COLUMN_NAME": "Id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_AssginMeet",
+    "COLUMN_NAME": "MeetingId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_AssginMeet",
+    "COLUMN_NAME": "UserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_AssginMeet",
+    "COLUMN_NAME": "RoomSid",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_AssginMeet",
+    "COLUMN_NAME": "CreationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_AssginMeet",
+    "COLUMN_NAME": "CreatorUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_AssginMeet",
+    "COLUMN_NAME": "LastModificationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_AssginMeet",
+    "COLUMN_NAME": "LastModifierUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_AssginMeet",
+    "COLUMN_NAME": "IsDeleted",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_AssginMeet",
+    "COLUMN_NAME": "DeleterUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_AssginMeet",
+    "COLUMN_NAME": "DeletionTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "Id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "UserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "RoomSid",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "RoomName",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "RoomTitle",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "StartTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "EndTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "Duration",
+    "DATA_TYPE": "float",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "JoinUrl",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "MeetStatus",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "Password",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "RecordingUrl",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "TextSearch",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "MaxParticipant",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "CreationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "CreatorUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "LastModificationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "LastModifierUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "IsDeleted",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "DeleterUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "DeletionTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "Description",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Meeting_Meeting",
+    "COLUMN_NAME": "WaitingRoom",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": "(CONVERT([bit],(0)))"
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "Id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "TenantId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "Code",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "Name",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "StartDate",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "EndDate",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "Note",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "Status",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "DepartmentId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "CreationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "CreatorUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "LastModificationTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "LastModifierUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "IsDeleted",
+    "DATA_TYPE": "bit",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "DeleterUserId",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "DeletionTime",
+    "DATA_TYPE": "datetime2",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  },
+  {
+    "TABLE_NAME": "Rcm_RecruitmentPlan",
+    "COLUMN_NAME": "TextSearch",
+    "DATA_TYPE": "nvarchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_DEFAULT": null
+  }
+]

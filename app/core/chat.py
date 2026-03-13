@@ -1,6 +1,9 @@
 import sys
 import os
 import time
+import logging
+
+logger = logging.getLogger("uvicorn.error")
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
@@ -47,34 +50,49 @@ class ChatSession():
     def __init__(self):
         pass
 
-    def chat_session(self, query_input, tenant_id, access_role, employee_id): 
+    def chat_session(self, query_input, tenant_id, access_role, employee_id, employee_db_id=0, is_manager=False, department_ids=None): 
         first_time = time.time()
 
         query = query_input.strip()
+        if department_ids is None:
+            department_ids = []
 
         # 1. Query Input + Conversation History -> LLM rewrite -> Context Query
-        # Get coversation history
-        chat_history = memory_client.get_history(tenant_id, employee_id, limit=6)
-        # Rewrite query input
-        context_query = memory_client.contextualize_query(query, chat_history)
-        # Save message to Redis
-        memory_client.add_message(tenant_id, employee_id, "user", query)
+        logger.info("[CHAT] Step 1: Getting chat history from Redis...")
+        try:
+            chat_history = memory_client.get_history(tenant_id, employee_id, limit=40)
+        except Exception as e:
+            logger.warning(f"[CHAT] Step 1: Redis error: {e}. Continuing without history.")
+            chat_history = []
+        logger.info(f"[CHAT] Step 1: Got {len(chat_history)} history messages. Contextualizing query via Ollama...")
+        # context_query = memory_client.contextualize_query(query, chat_history)
+        # logger.info(f"[CHAT] Step 1: Done. context_query='{context_query[:100]}'")
+        try:
+            memory_client.add_message(tenant_id, employee_id, "user", query)
+        except Exception as e:
+            logger.warning(f"[CHAT] Step 1: Redis save error: {e}. Skipping.")
 
-        # 2. Context Query -> Embedding Model -> Dense Vector + Sparse Vector -> Retrieval to Qdrant DB -> Context Docs (20)
-        search_results = db_client.search_hybrid(context_query, tenant_id, access_role, k=20)
+        # 2. Hybrid search
+        logger.info("[CHAT] Step 2: Hybrid search in Qdrant...")
+        search_results = db_client.search_hybrid(query, tenant_id, access_role, k=20)
+        logger.info(f"[CHAT] Step 2: Done. Got {len(search_results)} results.")
 
-        # 3. Context Docs (20) -> LLM reranking -> Context Docs (5)
-        top_docs = rerank_client.rerank(context_query, search_results, top_k=5)
+        # 3. Rerank
+        logger.info("[CHAT] Step 3: Reranking...")
+        top_docs = rerank_client.rerank(query, search_results, top_k=5)
+        logger.info(f"[CHAT] Step 3: Done. Top {len(top_docs)} docs.")
 
-        # 4. Context Query + Context Docs (5) -> LLM -> Final Response 
+        # 4. LLM generate
+        logger.info("[CHAT] Step 4: Building prompt and calling Ollama LLM...")
         messages = prompt_client.build_chat_messages(
-            query=context_query, 
+            query=query, 
             search_results=top_docs,
             chat_history=chat_history, 
             reasoning=False
         )
 
         response_obj, citation = llm_client.invoke(messages)
+        logger.info("[CHAT] Step 4: Done. Got LLM response.")
                 
         final_answer = ""
         if hasattr(response_obj, 'content'):
@@ -83,12 +101,18 @@ class ChatSession():
             final_answer = str(response_obj) 
 
         # Save message to Redis
-        memory_client.add_message(tenant_id, employee_id, "assistant", final_answer)
+        try:
+            memory_client.add_message(tenant_id, employee_id, "assistant", final_answer)
+        except Exception as e:
+            logger.warning(f"[CHAT] Redis save error: {e}. Skipping.")
 
         # Output for Backend Team
         result = {
             "tenant_id": tenant_id,
             "employee_id": employee_id,
+            "employee_db_id": employee_db_id,
+            "is_manager": is_manager,
+            "department_ids": department_ids,
             "query": query,
             "answer": final_answer,
             "citation": citation

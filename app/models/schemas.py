@@ -95,7 +95,10 @@ class ChatRequest(BaseModel):
     question: str = Field(..., description="Câu hỏi / tin nhắn của user", min_length=1)
     tenant_id: str = Field(..., description="ID của tenant (công ty/tổ chức)")
     role_id: int = Field(..., description="Role ID để phân quyền truy cập tài liệu")
-    user_id: str = Field(..., description="ID của user (employee_id)")
+    user_id: str = Field(..., description="ID của user (AbpUsers.Id)")
+    employee_id: int = Field(default=0, description="ID của employee (Dms_Employee.Id)")
+    is_manager: bool = Field(default=False, description="Có phải manager không (từ Dms_WorkPosition.IsManager)")
+    department_ids: List[int] = Field(default_factory=list, description="Danh sách department IDs được phép xem (phòng mình + phòng con)")
     
     @validator("question")
     def validate_question(cls, v):

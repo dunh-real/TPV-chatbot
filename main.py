@@ -11,6 +11,13 @@ import time
 from app.core.config import settings
 from app.api.endpoints import chat, upload, health
 
+# Pre-load tất cả AI models (Reranker, Embedding, Qdrant, Redis) ngay khi start
+# Để request đầu tiên không phải chờ load model
+print("Đang khởi tạo AI services (Qdrant, Redis, Reranker, Embedding)...")
+from app.core.chat import ChatSession  # noqa: E402
+_chat_session = ChatSession()
+print("Khởi tạo AI services hoàn tất.")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
