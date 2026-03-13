@@ -58,10 +58,12 @@ class SQLAgent:
         if is_manager and department_ids:
             dept_list = ",".join(str(d) for d in department_ids)
             access_note = f"""- PHÂN QUYỀN DỮ LIỆU: Người dùng hiện tại có employee_id = {employee_id}, là QUẢN LÝ, được xem dữ liệu của các phòng ban có WorkDepartmentId IN ({dept_list})
+- Danh sách department_ids đã bao gồm phòng ban hiện tại VÀ tất cả phòng ban con (cấu trúc cây). Ví dụ: phòng IT + DEV + Frontend + Backend + Mobile + CSHT IT + Networking + DevSecOps
 - Nếu câu hỏi hỏi về "tôi" hoặc "của tôi": dùng EmployeeId = {employee_id} (chỉ lấy data của chính người hỏi)
-- Nếu câu hỏi hỏi về nhân viên/phòng ban/tổng hợp: dùng EmployeeId IN (SELECT Id FROM Dms_Employee WHERE WorkDepartmentId IN ({dept_list}) AND IsDeleted = 0 AND TenantId = {tenant_id})
+- Nếu câu hỏi hỏi về phòng ban của người dùng (ví dụ: "phòng tôi", "phòng IT", "nhân viên trong phòng"): BẮT BUỘC dùng WorkDepartmentId IN ({dept_list}) thay vì tìm theo tên phòng ban. Vì department_ids đã bao gồm cả phòng con
+- Nếu câu hỏi hỏi về phòng ban KHÁC (không phải phòng của người dùng): dùng LIKE để tìm theo tên, VÀ phải dùng CTE recursive để lấy cả phòng con:
+  WITH DeptTree AS (SELECT Id FROM Dms_WorkDepartment WHERE DisplayName LIKE N'%keyword%' AND IsDeleted = 0 AND TenantId = {tenant_id} UNION ALL SELECT d.Id FROM Dms_WorkDepartment d JOIN DeptTree dt ON d.ParentId = dt.Id WHERE d.IsDeleted = 0 AND d.TenantId = {tenant_id}) SELECT ... WHERE WorkDepartmentId IN (SELECT Id FROM DeptTree)
 - Với table Dms_Employee khi hỏi về "tôi": thêm AND Id = {employee_id}
-- Với table Dms_Employee khi hỏi về phòng ban: thêm AND WorkDepartmentId IN ({dept_list})
 - Với table Meeting_Meeting hoặc Meeting_AssginMeet có cột UserId khi hỏi về "tôi": thêm AND UserId = (SELECT UserId FROM Dms_Employee WHERE Id = {employee_id} AND IsDeleted = 0)
 - Với table Meeting khi hỏi về phòng ban: thêm AND UserId IN (SELECT UserId FROM Dms_Employee WHERE WorkDepartmentId IN ({dept_list}) AND IsDeleted = 0 AND TenantId = {tenant_id})"""
         else:
@@ -82,6 +84,8 @@ LƯU Ý QUAN TRỌNG:
 - Luôn thêm WHERE IsDeleted = 0 nếu table có cột IsDeleted (ABP soft delete)
 {tenant_note}
 - BẮT BUỘC: Khi query liên quan đến nhân viên, luôn JOIN Dms_Employee để lấy FullName thay vì chỉ trả về EmployeeId
+- BẮT BUỘC: Khi so sánh chuỗi tiếng Việt (nvarchar), LUÔN dùng N prefix: N'giá trị'. Ví dụ: WHERE DisplayName = N'Phòng Công nghệ thông tin', WHERE FullName LIKE N'%Nguyễn%'
+- BẮT BUỘC: Khi tìm theo tên phòng ban hoặc tên nhân viên, dùng LIKE thay vì = để linh hoạt hơn. Ví dụ: WHERE DisplayName LIKE N'%Công nghệ%' thay vì WHERE DisplayName = N'Phòng Công nghệ thông tin'
 - BẮT BUỘC PHÂN QUYỀN - KHÔNG ĐƯỢC BỎ QUA:
 {access_note}
 - Dùng GETDATE() thay vì NOW()
