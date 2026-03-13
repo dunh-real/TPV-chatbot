@@ -81,9 +81,9 @@ class MSSQLService:
         """
         sql_upper = sql.upper().strip()
 
-        # Phải bắt đầu bằng SELECT
-        if not sql_upper.startswith("SELECT"):
-            return False, "Chỉ cho phép câu lệnh SELECT"
+        # Phải bắt đầu bằng SELECT hoặc WITH (CTE)
+        if not sql_upper.startswith("SELECT") and not sql_upper.startswith("WITH"):
+            return False, "Chỉ cho phép câu lệnh SELECT hoặc WITH (CTE)"
 
         # Chặn các từ khóa nguy hiểm (word boundary)
         for pattern in BLOCKED_KEYWORDS:
